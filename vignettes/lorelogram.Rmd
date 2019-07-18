@@ -1,0 +1,19 @@
+---
+title: "Lorelogram"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Lorelogram}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(lorelogram)
+```
