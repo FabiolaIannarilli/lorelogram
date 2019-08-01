@@ -1,24 +1,24 @@
-#' Calculate and plot pairwise log-odds ratios at intervals of increasing length
+#' Calculate pairwise log-odds ratios at intervals of increasing length
 #'
-#' This function estimates pairwise log-odds ratios in binary data at intervals of increasing length between subsequent sampling replicates. Plot of the estimates versus lags provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates.
+#' This function estimates pairwise log-odds ratios in binary data at intervals of increasing length between subsequent sampling replicates. Plotting of the estimates versus lags (see the \code{\link{lor_plot}} function) provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates.
 #'
-#' @param data data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates).
-#' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30).
-#' @param write_csv logical. Should output be saved as a .csv (default: TRUE)?
+#' @param data data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.
+#' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.
+#' @param bin_width numeric. Number of lag in the original scale that should be included in each bin. The default (=1) represents no binning.
+#' @param write_csv logical. Should output be saved as a .csv (default: FALSE)?
 #' @param outDir character. Directory into which .csv and plot file are saved.
-#' @param plot_LOR logical. Create a .jpg plot of the results (default: TRUE)?
-#' @param plot_title character. Title of the plot (default: NULL)
-#' @param plot_x_title character. Title of x-axis of the plot (default: Lag)
 #' @return A data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} is returned.
-#' @details \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
+#' @details \code{\link{lorelogram}} can handle NAs in \code{data}. \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. The first column should contain unitID (a unique identifier for each sampling units); each column from the second to the last should contain the binary data and should follow the spatial or temporal order in which the data were collected (e.g., second, third, and fourth columns should contain data from the first, second, third sampling replicates and so on). If unequal intervals are present in the data, fill gaps with columns of all NAs. Spatio- or temporal- difference between two subsequent columns (e.g. second and third) corresponds to 1-unit lag.
 #'
 #' @examples
 #' data(GrayFox_Hour)
-#' lorelogram(GrayFox_Hour)
+#' lorelogram(GrayFox_Hour, max_lag = 120)
+#'
+#'
 #'
 #' @importFrom magrittr %>%
 #' @export
-lorelogram <- function(data, max_lag = 30, write_csv = TRUE, outDir = "", plot_LOR = TRUE, plot_title = "", plot_x_title = "Lag") {
+lorelogram <- function(data, max_lag = 30, bin_width = 1, write_csv = FALSE, outDir = "") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -28,34 +28,38 @@ lorelogram <- function(data, max_lag = 30, write_csv = TRUE, outDir = "", plot_L
          call. = FALSE)
   }
 
+  if (bin_width < 1) {
+    stop("bin_width should be equal to 1 or higher",
+         call. = FALSE)
+  }
+  
   # Remove rows (=cameras) with no detection and prepare data
   y <- data[rowSums(data[,2:ncol(data)], na.rm = TRUE) > 0,]
   y <- droplevels(y)
   y <- dplyr::rename(y, id=names(y[1]))
 
-
+  
   # Determine all combinations of (current time, future times) for a sampling site up to max_lag.
   #
   # - V1 of x_cmb determines time point 1
   # - V2 of x_cmb determines time point 2
   #+ all_combinations
-  max_delta_time <- max_lag
-
+  
   if (ncol(y)>24*60*14) { #2-week data at minute time-interval
   # Create all combinations of minute-occasion up to 2 weeks of data
   x_cmb <- as.data.frame(arrangements::combinations(n=24*60*14, k=2, replace = FALSE))
   #head(x_cmb)
 
-  # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_delta_time.
+  # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_lag.
   x_cmb <- x_cmb %>%
     dplyr::mutate(diff_time= x_cmb[,2] - x_cmb[,1]) %>% # column with time difference
-    dplyr::filter(diff_time >= 0 & diff_time <= max_delta_time) %>% # filter combinations negative or too far apart
+    dplyr::filter(diff_time >= 0 & diff_time <= max_lag) %>% # filter combinations negative or too far apart
     dplyr::select(V1, V2)
 
   # Replicate to include more than 2 weeks of by-minute data
   x_cmb2 <- x_cmb
   for (i in 1:ceiling(ncol(y)/(24*60*14))){
-    x_cmb_temp <- x_cmb + i*(24*60*14-max_delta_time)
+    x_cmb_temp <- x_cmb + i*(24*60*14-max_lag)
     x_cmb2 <- rbind(x_cmb2,x_cmb_temp) %>% dplyr::filter(V1 <= ncol(y))
   }
   x_cmb <- x_cmb2
@@ -67,10 +71,10 @@ lorelogram <- function(data, max_lag = 30, write_csv = TRUE, outDir = "", plot_L
     x_cmb <- as.data.frame(arrangements::combinations(n=ncol(y), k=2, replace = FALSE))
     #head(x_cmb)
 
-    # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_delta_time.
+    # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_lag.
     x_cmb <- x_cmb %>%
       dplyr::mutate(diff_time= x_cmb[,2] - x_cmb[,1]) %>% # column with time difference
-      dplyr::filter(diff_time >= 0 & diff_time <= max_delta_time) %>% # filter combinations negative or too far apart
+      dplyr::filter(diff_time >= 0 & diff_time <= max_lag) %>% # filter combinations negative or too far apart
       dplyr::select(V1, V2)
 
     # Remove duplicates and interval larger than time last occasion
@@ -82,9 +86,7 @@ lorelogram <- function(data, max_lag = 30, write_csv = TRUE, outDir = "", plot_L
   #+ organize1
   # Organize data
   y2 <- tidyr::gather(y, time, value, -id)
-  y2 <- dplyr::mutate(y2, time=as.numeric(substr(time,2,10)))
-  #y3 <- y2 %>% filter(is.na(value)!=TRUE) #filter has to done after nest function
-  y3 <- y2
+  y3 <- dplyr::mutate(y2, time=as.numeric(substr(time,2,10)))
   names(y3)[c(1,3)]<-c("id","y")
   y3$y <- as.numeric(as.character(y3$y))
   #head(y3)
@@ -125,12 +127,37 @@ lorelogram <- function(data, max_lag = 30, write_csv = TRUE, outDir = "", plot_L
   b <- lapply(1:n, myfunct)
   freq <- as.data.frame(data.table::rbindlist(b, fill = TRUE)) # from list to data.frame
 
-
 # #### Organize data: Compile counts of pairwise 11, 01, 01, 00 for each time interval
 #+ organize3
-freq_tot <- freq %>%
-  dplyr::group_by(time_diff, y1) %>%
-  dplyr::summarise_all(dplyr::funs(sum))
+  
+  if (bin_width == 1){
+    freq_tot <- freq %>%
+      dplyr::group_by(time_diff, y1) %>%
+      dplyr::summarise_all(dplyr::funs(sum))
+  }
+  
+  if (bin_width > 1) {
+    # function from https://www.r-bloggers.com/finding-the-midpoint-when-creating-intervals/
+    midpoints <- function(x, dp=2){
+      lower <- as.numeric(gsub(",.*","",gsub("\\(|\\[|\\)|\\]","", x)))
+      upper <- as.numeric(gsub(".*,","",gsub("\\(|\\[|\\)|\\]","", x)))
+      return(round(lower+(upper-lower)/2, dp))
+    }
+    
+    # build intervals
+    brks = seq(min(freq$time_diff, na.rm = TRUE), max(freq$time_diff, na.rm = TRUE)+bin_width, bin_width)
+    
+    freq_tot <- freq %>%
+     dplyr::mutate(bin = cut(time_diff, brks, include.lowest = TRUE),
+                   Lag_midpoint = midpoints(bin)) %>% 
+     dplyr::select(-bin) %>% 
+     dplyr::group_by(Lag_midpoint) %>%
+     dplyr::summarise_all(dplyr::funs(sum)) %>% 
+     dplyr::select(-time_diff) %>% 
+     dplyr::rename(., time_diff = Lag_midpoint)  
+  }
+
+
 
 
 # #### Calculate log odds ratios (direct calculation)
@@ -149,41 +176,12 @@ if (write_csv == TRUE) { # save results
   if(outDir != "" & !file.exists(outDir)){stop("outDir does not exist")}
 
   if (outDir == "") {
-    filename <- paste("Log_odds_ratio_MaxLag_", as.character(max_delta_time),".csv", sep="")
+    filename <- paste("Log_odds_ratio_MaxLag_", as.character(max_lag),".csv", sep="")
     } else {
-    filename <- paste(as.character(outDir), "/Log_odds_ratio_MaxLag_", as.character(max_delta_time),".csv", sep="")
+    filename <- paste(as.character(outDir), "/Log_odds_ratio_MaxLag_", as.character(max_lag),".csv", sep="")
     }
   write.csv(x = ORs_all_minute, file = filename)
 }
-
-if (plot_LOR == TRUE) { #plot lor values
-plot_LOR_all <-  ggplot2::ggplot(ORs_all_minute, ggplot2::aes(x = time_diff)) +
-  ggplot2::geom_ribbon(ggplot2::aes(ymin = L_95_CI, ymax = U_95_CI, fill = "95 % CI"), alpha = 0.65) +
-  ggplot2::geom_line(ggplot2::aes(y = LORs, color = "LORs"), size=0.25, linetype=1) + #
-  ggplot2::geom_hline(ggplot2::aes(yintercept=0), linetype="solid")+
-  ggplot2::scale_colour_manual("",values="black") +
-  ggplot2::scale_fill_manual("",values="#4F6D7A") + #4F6D7A#F6511D
-  ggplot2::labs(x = plot_x_title, y = "Log Odds Ratio", title = plot_title)+
-  #coord_cartesian(ylim = c(-1,10), xlim=c(0,60))+ #
-  ggplot2::theme_minimal()+
-  ggplot2::theme(legend.justification = c(1, 1), legend.position = "none",
-        axis.line.y = ggplot2::element_line(colour = 'black', linetype = 'solid'),
-        axis.ticks.y = ggplot2::element_line(colour = 'black', linetype = 'solid'),
-        axis.text = ggplot2::element_text(size=8),
-        axis.title = ggplot2::element_text(size=10,face="bold"),
-        panel.grid.minor.y = ggplot2::element_blank(),
-        panel.grid.major.y = ggplot2::element_blank(),
-        panel.grid.major.x = ggplot2::element_line(colour = 'grey', linetype = 'solid', size=0.25),
-        panel.grid.minor.x = ggplot2::element_line(colour = 'grey', linetype = 'dashed', size=0.25))+
-  ggplot2::scale_x_continuous(breaks=seq(0,max(ORs_all_minute$time_diff),10), labels=seq(0,max(ORs_all_minute$time_diff),10))
-plot_LOR_all
-
-  if (outDir == "") {
-    filename <- paste("Log_odds_ratio_MaxLag_", as.character(max_delta_time),".jpg", sep="")
-      } else {
-    filename <- paste(as.character(outDir), "/Log_odds_ratio_MaxLag_", as.character(max_delta_time),".jpg", sep="")
-      }
-  ggplot2::ggsave(file = filename, plot_LOR_all, units = "cm", width = 30, height = 15)
-  }
 LORs
+
 }

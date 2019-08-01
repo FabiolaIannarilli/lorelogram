@@ -14,7 +14,9 @@ Imports: dplyr (>= 0.8.0.1),
          arrangements (>= 1.1.5),
          magrittr (>= 1.5),
          tidyr (>= 0.8.3),
-         data.table (>= 1.12.2)
+         data.table (>= 1.12.2),
+         splines,
+         gridExtra (>= 2.3)
 Suggests: 
     splines,
     knitr,

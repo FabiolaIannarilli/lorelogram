@@ -2,37 +2,35 @@
 % Please edit documentation in R/lorelogram.R
 \name{lorelogram}
 \alias{lorelogram}
-\title{Calculate and plot pairwise log-odds ratios at intervals of increasing length}
+\title{Calculate pairwise log-odds ratios at intervals of increasing length}
 \usage{
-lorelogram(data, max_lag = 30, write_csv = TRUE, outDir = "",
-  plot_LOR = TRUE, plot_title = "", plot_x_title = "Lag")
+lorelogram(data, max_lag = 30, bin_width = 1, write_csv = FALSE,
+  outDir = "")
 }
 \arguments{
-\item{data}{data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates).}
+\item{data}{data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.}
 
-\item{max_lag}{numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30).}
+\item{max_lag}{numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.}
 
-\item{write_csv}{logical. Should output be saved as a .csv (default: TRUE)?}
+\item{bin_width}{numeric. Number of lag in the original scale that should be included in each bin. The default (=1) represents no binning.}
+
+\item{write_csv}{logical. Should output be saved as a .csv (default: FALSE)?}
 
 \item{outDir}{character. Directory into which .csv and plot file are saved.}
-
-\item{plot_LOR}{logical. Create a .jpg plot of the results (default: TRUE)?}
-
-\item{plot_title}{character. Title of the plot (default: NULL)}
-
-\item{plot_x_title}{character. Title of x-axis of the plot (default: Lag)}
 }
 \value{
 A data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} is returned.
 }
 \description{
-This function estimates pairwise log-odds ratios in binary data at intervals of increasing length between subsequent sampling replicates. Plot of the estimates versus lags provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates.
+This function estimates pairwise log-odds ratios in binary data at intervals of increasing length between subsequent sampling replicates. Plotting of the estimates versus lags (see the \code{\link{lor_plot}} function) provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates.
 }
 \details{
-\code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
+\code{\link{lorelogram}} can handle NAs in \code{data}. \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. The first column should contain unitID (a unique identifier for each sampling units); each column from the second to the last should contain the binary data and should follow the spatial or temporal order in which the data were collected (e.g., second, third, and fourth columns should contain data from the first, second, third sampling replicates and so on). If unequal intervals are present in the data, fill gaps with columns of all NAs. Spatio- or temporal- difference between two subsequent columns (e.g. second and third) corresponds to 1-unit lag.
 }
 \examples{
 data(GrayFox_Hour)
-lorelogram(GrayFox_Hour)
+lorelogram(GrayFox_Hour, max_lag = 120)
+
+
 
 }

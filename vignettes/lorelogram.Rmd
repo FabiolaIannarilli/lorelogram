@@ -1,11 +1,25 @@
 ---
-title: "Lorelogram"
+title: "Lorelogram: describing correlation structure in binary data"
+date: "`r format(Sys.time(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Lorelogram}
+  %\VignetteIndexEntry{Lorelogram: describing correlation structure in binary data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+# Table of contents
+1. [Introduction](#introduction)
+2. [Some paragraph](#paragraph1)
+    1. [Sub paragraph](#subparagraph1)
+3. [Another paragraph](#paragraph2)
+
+
+
+
+# Introduction <a name="introduction"></a>
+
+The __lorelogram__ package provides functions to explore and graphically describe correlation structures in binary data. The method has been 
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -15,5 +29,5 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(lorelogram)
+#library(lorelogram)
 ```
