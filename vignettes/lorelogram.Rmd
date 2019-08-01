@@ -1,26 +1,13 @@
 ---
 title: "Lorelogram: describing correlation structure in binary data"
 date: "`r format(Sys.time(), '%d %B %Y')`"
+bibliography: C:/Users/Fabiola/Documents/Bibtex/Lorelogram Vignette.bib
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Lorelogram: describing correlation structure in binary data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
-# Table of contents
-1. [Introduction](#introduction)
-2. [Some paragraph](#paragraph1)
-    1. [Sub paragraph](#subparagraph1)
-3. [Another paragraph](#paragraph2)
-
-
-
-
-# Introduction <a name="introduction"></a>
-
-The __lorelogram__ package provides functions to explore and graphically describe correlation structures in binary data. The method has been 
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -28,6 +15,49 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-#library(lorelogram)
+
+
+# Table of contents
+1. [Introduction](#introduction)
+2. [How to apply the lorelogram](#paragraph1)
+    1. [Data format](#subparagraph1)
+3. [Another paragraph](#paragraph2)
+
+
+
+
+# Introduction <a name="introduction"></a>
+
+The __lorelogram__ package provides functions to explore and graphically describe correlation structures in binary data. The package is available on GitHub and can be downloaded in R (@RCoreTeam2018) via:
+
+```{r load pkg}
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("FabiolaIannarilli/lorelogram", auth_token = "69451dbc8b643e18d5e25b488e0a485b59a93512") 
+
 ```
+
+
+The method has been developed by @Heagerty1998 and is based on pairwise log-odds ratio. For more information on the method and on applications in ecological studies see @Iannarilli.
+
+Here we focused on guiding new users on how to apply the lorelogram to their own dataset. We provide step-by-step examples, and a comparison of the present function with other functions for calculating the lorelogram in R (@RCoreTeam2018). 
+
+The main function in the __lorelogram__ package is called _lorelogram_. This function allows users to calculate log-odds ratio at each time lag up to a maximum lag between observations in the same sampling unit. It also return a plot of these values, the lorelogram plot, that graphically represents how the correlation change with the increase of the spatial or temporal lag between observations. 
+
+We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the _lorelogram_ function. 
+
+```{r ex1}
+data("GrayFox_Hour")
+lorelogram(GrayFox_Hour)
+```
+
+# How to apply the lorelogram
+
+
+## Data format <a name="data format"></a>
+
+
+
+
+
+
+# References

@@ -5,7 +5,8 @@
 #' @param data data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.
 #' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.
 #' @param bin_width numeric. Number of lag in the original scale that should be included in each bin. The default (=1) represents no binning.
-#' @param write_csv logical. Should output be saved as a .csv (default: FALSE)?
+#' @param plot_LOR logical. Create a plot of the results (default: TRUE)?
+#' @param write_csv logical. Should the output be saved as a .csv (default: FALSE)?
 #' @param outDir character. Directory into which .csv and plot file are saved.
 #' @return A data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} is returned.
 #' @details \code{\link{lorelogram}} can handle NAs in \code{data}. \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. The first column should contain unitID (a unique identifier for each sampling units); each column from the second to the last should contain the binary data and should follow the spatial or temporal order in which the data were collected (e.g., second, third, and fourth columns should contain data from the first, second, third sampling replicates and so on). If unequal intervals are present in the data, fill gaps with columns of all NAs. Spatio- or temporal- difference between two subsequent columns (e.g. second and third) corresponds to 1-unit lag.
@@ -18,7 +19,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lorelogram <- function(data, max_lag = 30, bin_width = 1, write_csv = FALSE, outDir = "") {
+lorelogram <- function(data, max_lag = 30, bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -32,19 +33,19 @@ lorelogram <- function(data, max_lag = 30, bin_width = 1, write_csv = FALSE, out
     stop("bin_width should be equal to 1 or higher",
          call. = FALSE)
   }
-  
+
   # Remove rows (=cameras) with no detection and prepare data
   y <- data[rowSums(data[,2:ncol(data)], na.rm = TRUE) > 0,]
   y <- droplevels(y)
   y <- dplyr::rename(y, id=names(y[1]))
 
-  
+
   # Determine all combinations of (current time, future times) for a sampling site up to max_lag.
   #
   # - V1 of x_cmb determines time point 1
   # - V2 of x_cmb determines time point 2
   #+ all_combinations
-  
+
   if (ncol(y)>24*60*14) { #2-week data at minute time-interval
   # Create all combinations of minute-occasion up to 2 weeks of data
   x_cmb <- as.data.frame(arrangements::combinations(n=24*60*14, k=2, replace = FALSE))
@@ -129,13 +130,13 @@ lorelogram <- function(data, max_lag = 30, bin_width = 1, write_csv = FALSE, out
 
 # #### Organize data: Compile counts of pairwise 11, 01, 01, 00 for each time interval
 #+ organize3
-  
+
   if (bin_width == 1){
     freq_tot <- freq %>%
       dplyr::group_by(time_diff, y1) %>%
       dplyr::summarise_all(dplyr::funs(sum))
   }
-  
+
   if (bin_width > 1) {
     # function from https://www.r-bloggers.com/finding-the-midpoint-when-creating-intervals/
     midpoints <- function(x, dp=2){
@@ -143,18 +144,18 @@ lorelogram <- function(data, max_lag = 30, bin_width = 1, write_csv = FALSE, out
       upper <- as.numeric(gsub(".*,","",gsub("\\(|\\[|\\)|\\]","", x)))
       return(round(lower+(upper-lower)/2, dp))
     }
-    
+
     # build intervals
     brks = seq(min(freq$time_diff, na.rm = TRUE), max(freq$time_diff, na.rm = TRUE)+bin_width, bin_width)
-    
+
     freq_tot <- freq %>%
      dplyr::mutate(bin = cut(time_diff, brks, include.lowest = TRUE),
-                   Lag_midpoint = midpoints(bin)) %>% 
-     dplyr::select(-bin) %>% 
+                   Lag_midpoint = midpoints(bin)) %>%
+     dplyr::select(-bin) %>%
      dplyr::group_by(Lag_midpoint) %>%
-     dplyr::summarise_all(dplyr::funs(sum)) %>% 
-     dplyr::select(-time_diff) %>% 
-     dplyr::rename(., time_diff = Lag_midpoint)  
+     dplyr::summarise_all(dplyr::funs(sum)) %>%
+     dplyr::select(-time_diff) %>%
+     dplyr::rename(., time_diff = Lag_midpoint)
   }
 
 
@@ -162,7 +163,7 @@ lorelogram <- function(data, max_lag = 30, bin_width = 1, write_csv = FALSE, out
 
 # #### Calculate log odds ratios (direct calculation)
 #+ Log_calculation
-ORs<-freq_tot %>% dplyr::group_by(time_diff) %>%
+ORs <- freq_tot %>% dplyr::group_by(time_diff) %>%
   dplyr::summarize(or = sum(`11`)*sum(`00`)/(sum(`10`)*sum(`01`)),
                    se = sqrt(1/sum(`11`)+1/sum(`00`)+1/sum(`10`)+1/sum(`01`)))
 ORs_all_minute <- ORs %>% dplyr::mutate(LORs=log(or),
@@ -182,6 +183,12 @@ if (write_csv == TRUE) { # save results
     }
   write.csv(x = ORs_all_minute, file = filename)
 }
+
+if (plot_LOR == TRUE) { #plot lor values
+  plot_LOR_all <- lor_plot(LORs)
+  print(plot_LOR_all)
+}
+
 LORs
 
 }
