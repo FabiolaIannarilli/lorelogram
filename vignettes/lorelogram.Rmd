@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
+knitr::opts_chunk$set(fig.align = "center", fig.width = 6, fig.height = 4, 
   collapse = TRUE,
   comment = "#>"
 )
@@ -30,10 +30,10 @@ knitr::opts_chunk$set(
 
 The __lorelogram__ package provides functions to explore and graphically describe correlation structures in binary data. The package is available on GitHub and can be downloaded in R (@RCoreTeam2018) via:
 
-```{r load pkg}
-if (!require("devtools")) install.packages("devtools")
+```{r load pkg, warning = FALSE, message = FALSE}
+if (!require("devtools")) install.packages("devtools", repos = "http://cran.us.r-project.org", dependencies = "Imports")
 devtools::install_github("FabiolaIannarilli/lorelogram", auth_token = "69451dbc8b643e18d5e25b488e0a485b59a93512") 
-
+library(lorelogram)
 ```
 
 
@@ -41,13 +41,20 @@ The method has been developed by @Heagerty1998 and is based on pairwise log-odds
 
 Here we focused on guiding new users on how to apply the lorelogram to their own dataset. We provide step-by-step examples, and a comparison of the present function with other functions for calculating the lorelogram in R (@RCoreTeam2018). 
 
-The main function in the __lorelogram__ package is called _lorelogram_. This function allows users to calculate log-odds ratio at each time lag up to a maximum lag between observations in the same sampling unit. It also return a plot of these values, the lorelogram plot, that graphically represents how the correlation change with the increase of the spatial or temporal lag between observations. 
+The main function in the __lorelogram__ package is called _lorelogram_. This function allows users to calculate log-odds ratio at each time lag up to a maximum lag between observations. It also returns a plot of these values, the lorelogram plot, that graphically represents how the correlation change with the increase of the spatial or temporal lag between observations. 
 
 We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the _lorelogram_ function. 
 
 ```{r ex1}
 data("GrayFox_Hour")
 lorelogram(GrayFox_Hour)
+```
+
+The output of the _lorelogram_ function can be assigned to an object that can be later used as the argument for the function _lor_plot_, that allows users to personalize the lorelogram plot and save it as a jpeg file.
+
+```{r ex2}
+LORs <- lorelogram(GrayFox_Hour, plot_LOR = FALSE)
+lor_plot(LORs, save_LOR_plot = FALSE, plot_title = "My first lorelogram", plot_x_title = "Lag (Hour)")
 ```
 
 # How to apply the lorelogram

@@ -3,7 +3,8 @@ Title: Calculating pairwise log-odds ratios in binary data
 Version: 0.0.0.9000
 Authors@R: c(person("Fabiola", "Iannarilli", email = "ianna014@umn.edu", role = c("aut", "cre")),
     person("John R", "Fieberg", email = "jfieberg@umn.edu", role = ("aut")))
-Year: {2019}
+Year: 2019
+date: "`r Sys.Date()`"
 Description: Describing correlation structures in binary data through pairwise
     log-odds ratio. Plotting log-odds ratio values calculated at a series of
     increasing intervals provides a graphical representation of how correlation 
