@@ -39,18 +39,18 @@ library(lorelogram)
 
 The method has been developed by @Heagerty1998 and is based on pairwise log-odds ratio. For more information on the method and on applications in ecological studies see @Iannarilli.
 
-Here we focused on guiding new users on how to apply the lorelogram to their own dataset. We provide step-by-step examples, and compare the efficiency of our _lorelogram_ function with other functions for calculating the lorelogram available in R (@RCoreTeam2018). 
+Here we focused on guiding new users on how to apply the lorelogram to their own dataset. We provide step-by-step examples, and compare the efficiency of our `lorelogram` function with other functions for calculating the lorelogram available in R (@RCoreTeam2018). 
 
-The main function in the __lorelogram__ package is called _lorelogram_. This function allows users to calculate log-odds ratio at each spatial or temporal lag up to a maximum interval between subsequent observations. It also returns a plot of these values, the lorelogram plot, that graphically represents how the correlation changes with the increase of the spatial or temporal interval between observations. 
+The main function in the __lorelogram__ package is called `lorelogram`. This function allows users to calculate log-odds ratio at each spatial or temporal lag up to a maximum interval between subsequent observations. It also returns a plot of these values, the lorelogram plot, that graphically represents how the correlation changes with the increase of the spatial or temporal interval between observations. 
 
-We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota during fall 2016. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the _lorelogram_ function. 
+We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota during fall 2016. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the `lorelogram` function. 
 
 ```{r ex1}
 data("GrayFox_Hour")
 lorelogram(GrayFox_Hour)
 ```
 
-The _lorelogram_ function returns a data frame containing the estimated average log-odds ratio values and associate 95% confidence interval at each lag, and a plot of the estimates. The data frame component of the output can be assigned to an object that can be later used as the argument for the function _lor_plot_. This function allows users to save the plot as a jpeg file in a directory of their choice and have more control on how to personalize the lorelogram plot. For example, using _lor_plot_ we can assign a title to the plot and change the default label for the x axis.
+The `lorelogram` function returns a data frame containing the estimated average log-odds ratio values and associate 95% confidence interval at each lag, and a plot of the estimates. The data frame component of the output can be assigned to an object that can be later used as the argument for the function `lor_plot`. This function allows users to save the plot as a jpeg file in a directory of their choice and have more control on how to personalize the lorelogram plot. For example, using `lor_plot` we can assign a title to the plot and change the default label for the x axis.
 
 ```{r ex2}
 LORs <- lorelogram(GrayFox_Hour, plot_LOR = FALSE)
@@ -59,11 +59,11 @@ lor_plot(LORs, save_LOR_plot = FALSE, plot_title = "My first lorelogram", plot_x
 
 # How to apply the lorelogram
 
-In this section we are going to illustrate how to apply the _lorelogram_ function to new datasets using examples from @Iannarilli.  
+In this section we are going to illustrate how to apply the `lorelogram` function to new datasets. The lorelogram is a very usufel tool to identify dependency structure in binary data, guide data aggregation, explore the effect of covariates on the correlation in the data. It can also be applied to explore the dependency in a certain dataset at different spatial or temporal scales (e.g., camera trap data analyzed at the hour- or minute-scale). See @Iannarilli for examples of applications.   
 
 ## Data format <a name="data format"></a>
 
-The _lorelogram_ function accepts both wide and long data format. Wide format data should contain a sampling unit identifier in the first column and the binary data in the following columns, one for each sampling replicates. Each row should represent a sampling unit. In the wide format, it is important to organize the data into the columns from first to last sampling occasion (with data for the first occasion contained in the second column, and so on) because the order of the columns will be then used in the function to define the spatial or temporal difference between two outcomes at the same sampling unit.
+The `lorelogram` function accepts both wide and long data format. Wide format data should contain a sampling unit identifier in the first column and the binary data in the following columns, one for each sampling replicates. Each row should represent a sampling unit. In the wide format, it is important to organize the data into the columns from first to last sampling occasion (with data for the first occasion contained in the second column, and so on) because the order of the columns will be then used in the function to define the spatial or temporal difference between two outcomes at the same sampling unit.
 ```{r ex3}
 GrayFox_Hour[24:28, 1:31]
 ```
@@ -78,9 +78,9 @@ These data are a subset of the gray fox data organized in the long format and sh
 
 Sites in which there are no detection (i.e. no 1s) for the whole sampling period will be removed because they do not contain information on correlation among detections. The function handles missing values (i.e. NAs) in the data; for each sampling units, these values will be removed before creating the pairwise detection histories at the different intervals.
 
-# Interpreting the lorelogram
+## Interpreting the lorelogram
 
-
+Lorelogram plots provide a graphical description of how the correlation in the data changes with the increase of the interval between sampling occasions. Their interpretation vary based on the resolution of the data (e.g., hour- versus minute-occasion), and the context in which it is applied (e.g., spatial versus temporal dependency). Here we provide some general guidance on how to interpret the lorelogram using .   
 
 
 

@@ -42,50 +42,6 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, bin_width = 1, 
   y <- droplevels(y)
   y <- dplyr::rename(y, id=names(y[1]))
 
-
-  # Determine all combinations of (current time, future times) for a sampling site up to max_lag.
-  #
-  # - V1 of x_cmb determines time point 1
-  # - V2 of x_cmb determines time point 2
-  #+ all_combinations
-
-  if (ncol(y)>24*60*14) { #2-week data at minute time-interval
-  # Create all combinations of minute-occasion up to 2 weeks of data
-  x_cmb <- as.data.frame(arrangements::combinations(n=24*60*14, k=2, replace = FALSE))
-  #head(x_cmb)
-
-  # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_lag.
-  x_cmb <- x_cmb %>%
-    dplyr::mutate(diff_time= x_cmb[,2] - x_cmb[,1]) %>% # column with time difference
-    dplyr::filter(diff_time >= 0 & diff_time <= max_lag) %>% # filter combinations negative or too far apart
-    dplyr::select(V1, V2)
-
-  # Replicate to include more than 2 weeks of by-minute data
-  x_cmb2 <- x_cmb
-  for (i in 1:ceiling(ncol(y)/(24*60*14))){
-    x_cmb_temp <- x_cmb + i*(24*60*14-max_lag)
-    x_cmb2 <- rbind(x_cmb2,x_cmb_temp) %>% dplyr::filter(V1 <= ncol(y))
-  }
-  x_cmb <- x_cmb2
-  rm(list=c("x_cmb2", "x_cmb_temp", "data"))
-
-  # Remove duplicates and interval larger than time of the last occasion
-  x_cmb <- x_cmb %>% dplyr::distinct() %>% dplyr::filter(V1 <= ncol(y) & V2 < ncol(y)) %>% dplyr::mutate(diff_time = V2 - V1)
-  } else {
-    x_cmb <- as.data.frame(arrangements::combinations(n=ncol(y), k=2, replace = FALSE))
-    #head(x_cmb)
-
-    # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_lag.
-    x_cmb <- x_cmb %>%
-      dplyr::mutate(diff_time= x_cmb[,2] - x_cmb[,1]) %>% # column with time difference
-      dplyr::filter(diff_time >= 0 & diff_time <= max_lag) %>% # filter combinations negative or too far apart
-      dplyr::select(V1, V2)
-
-    # Remove duplicates and interval larger than time last occasion
-    x_cmb <- x_cmb %>% dplyr::distinct() %>% dplyr::filter(V1 <= ncol(y) & V2 < ncol(y)) %>% dplyr::mutate(diff_time = V2 - V1)
-    }
-
-
   # #### Organize data: from wide format to long format
   #+ organize1
   # Organize data
@@ -95,12 +51,64 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, bin_width = 1, 
   y3$y <- as.numeric(as.character(y3$y))
   #head(y3)
   rm(list=c("y2"))
+
+  # Define max number of reps
+  max_reps <- ncol(y)
   } # close wide format
 
   if (data_format == "long") {
     y <- dplyr::rename(data, id = names(data[1]), time = names(data[2]), y = names(data[3]))
+    # Remove rows (=cameras) with no detection and prepare data
+    y <- y %>% dplyr::group_by(id) %>% dplyr::filter(sum(y, na.rm = TRUE) > 0) %>% droplevels()
+
+    # Define max number of reps
+    max_reps <- max(y$time, na.rm = TRUE)
 
   } # close long format
+
+
+  # Determine all combinations of (current time, future times) for a sampling site up to max_lag.
+  #
+  # - V1 of x_cmb determines time point 1
+  # - V2 of x_cmb determines time point 2
+  #+ all_combinations
+
+  if (max_reps>24*60*14) { #2-week data at minute time-interval
+    # Create all combinations of minute-occasion up to 2 weeks of data
+    x_cmb <- as.data.frame(arrangements::combinations(n=24*60*14, k=2, replace = FALSE))
+    #head(x_cmb)
+
+    # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_lag.
+    x_cmb <- x_cmb %>%
+      dplyr::mutate(diff_time= x_cmb[,2] - x_cmb[,1]) %>% # column with time difference
+      dplyr::filter(diff_time >= 0 & diff_time <= max_lag) %>% # filter combinations negative or too far apart
+      dplyr::select(V1, V2)
+
+    # Replicate to include more than 2 weeks of by-minute data
+    x_cmb2 <- x_cmb
+    for (i in 1:ceiling(max_reps/(24*60*14))){
+      x_cmb_temp <- x_cmb + i*(24*60*14-max_lag)
+      x_cmb2 <- rbind(x_cmb2,x_cmb_temp) %>% dplyr::filter(V1 <= max_reps)
+    }
+    x_cmb <- x_cmb2
+    rm(list=c("x_cmb2", "x_cmb_temp", "data"))
+
+    # Remove duplicates and interval larger than time of the last occasion
+    x_cmb <- x_cmb %>% dplyr::distinct() %>% dplyr::filter(V1 <= max_reps & V2 < max_reps) %>% dplyr::mutate(diff_time = V2 - V1)
+  } else {
+    x_cmb <- as.data.frame(arrangements::combinations(n=max_reps, k=2, replace = FALSE))
+    #head(x_cmb)
+
+    # Now, calculate the time differences for all of these combinations and get rid of rows that include combinations of times where the difference in time <= max_lag.
+    x_cmb <- x_cmb %>%
+      dplyr::mutate(diff_time= x_cmb[,2] - x_cmb[,1]) %>% # column with time difference
+      dplyr::filter(diff_time >= 0 & diff_time <= max_lag) %>% # filter combinations negative or too far apart
+      dplyr::select(V1, V2)
+
+    # Remove duplicates and interval larger than time last occasion
+    x_cmb <- x_cmb %>% dplyr::distinct() %>% dplyr::filter(V1 <= max_reps & V2 < max_reps) %>% dplyr::mutate(diff_time = V2 - V1)
+  }
+
 
   # #### Organize data: create pairwise detection histories
   # Create nested data frame with each row representing the data from a different time point.  This will make it easy to select data from all clusters where observations differ by a specific time lag.
