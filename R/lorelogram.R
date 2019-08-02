@@ -6,6 +6,7 @@
 #' @param data_format character. Data can be provided in "wide" (default) or "long" format. See details for more information.
 #' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.
 #' @param lor_type character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.
+#' @param id_rand_eff logical. Conditional on lor_type = "model-based". Does the model has to include sampling unit ID as random effect?
 #' @param bin_width numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.
 #' @param plot_LOR logical. Create a plot of the results (default: TRUE)?
 #' @param write_csv logical. Should the output be saved as a .csv (default: FALSE)?
@@ -21,7 +22,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "empirical", bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
+lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "empirical", id_rand_eff = FALSE, bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -133,26 +134,94 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
     Z<-cbind(y.t1[,c(2,1,3)], y.t2[,c(1,3)])
     Z<-Z %>% dplyr::mutate(time_diff=time2-time1) %>%
       dplyr::filter(!is.na(y1) & !is.na(y2))
-    freq <- Z %>%
-      dplyr::group_by(time_diff, y1, y2) %>%
-      dplyr::summarise(count=n()) %>%
-      tidyr::unite(col = y1y2, y1, y2, sep="", remove=FALSE) %>%
-      dplyr::select(-y2) %>%  #remove info of second obs in time
-      tidyr::spread(key=y1y2, value=count, fill=0)
-    rm(list=c("y.t1","y.t2","Z"))
-    freq
+    rm(list=c("y.t1","y.t2"))
+    Z
   }
 
   b <- lapply(1:n, myfunct)
-  freq <- as.data.frame(data.table::rbindlist(b, fill = TRUE)) # from list to data.frame
+  Z <- as.data.frame(data.table::rbindlist(b, fill = TRUE)) # from list to data.frame
 
 # #### Organize data: Compile counts of pairwise 11, 01, 01, 00 for each time interval
 #+ organize3
 
+if (lor_type == "empirical"){
+  freq <- Z %>%
+    dplyr::group_by(time_diff, y1, y2) %>%
+    dplyr::summarise(count=n()) %>%
+    tidyr::unite(col = y1y2, y1, y2, sep="", remove=FALSE) %>%
+    dplyr::select(-y2) %>%  #remove info of second obs in time
+    tidyr::spread(key=y1y2, value=count, fill=0)
+
+    if (bin_width == 1){
+      freq_tot <- freq %>%
+        dplyr::group_by(time_diff, y1) %>%
+        dplyr::summarise_all(dplyr::funs(sum))
+      freq_tot
+    }
+
+    if (bin_width > 1) {
+      # function from https://www.r-bloggers.com/finding-the-midpoint-when-creating-intervals/
+      midpoints <- function(x, dp=2){
+        lower <- as.numeric(gsub(",.*","",gsub("\\(|\\[|\\)|\\]","", x)))
+        upper <- as.numeric(gsub(".*,","",gsub("\\(|\\[|\\)|\\]","", x)))
+        return(round(lower+(upper-lower)/2, dp))
+      }
+
+      # build intervals
+      brks = seq(min(freq$time_diff, na.rm = TRUE), max(freq$time_diff, na.rm = TRUE)+bin_width, bin_width)
+
+      freq_tot <- freq %>%
+        dplyr::mutate(bin = cut(time_diff, brks, include.lowest = TRUE),
+                   Lag_midpoint = midpoints(bin)) %>%
+        dplyr::select(-bin) %>%
+        dplyr::group_by(Lag_midpoint) %>%
+        dplyr::summarise_all(dplyr::funs(sum)) %>%
+        dplyr::select(-time_diff) %>%
+        dplyr::rename(., time_diff = Lag_midpoint)
+      freq_tot
+    }
+
+
+# #### Calculate log odds ratios (Empirical lorelogram)
+#+ Log_calculation
+ORs <- freq_tot %>% dplyr::group_by(time_diff) %>%
+  dplyr::summarize(or = sum(`11`)*sum(`00`)/(sum(`10`)*sum(`01`)),
+                   se = sqrt(1/sum(`11`)+1/sum(`00`)+1/sum(`10`)+1/sum(`01`)))
+ORs_all_minute <- ORs %>% dplyr::mutate(LORs=log(or),
+                                        U_95_CI = log(or)+1.96*se,
+                                        L_95_CI = log(or)-1.96*se)
+ORs_all_minute[!is.na(ORs_all_minute$or) & ORs_all_minute$or==0,4:6] <- NA #replace values when lor values were undefined
+LORs <- ORs_all_minute %>% dplyr::rename(., Lag=time_diff) %>% dplyr::select(c(Lag, LORs, U_95_CI, L_95_CI))
+LORs
+} # close lor_type empirical
+
+if (lor_type == "model-based"){
+  # organize the data
+  if (id_rand_eff == FALSE){
+  Z_par <- Z %>% select(id, y1, y2, time_diff) %>%
+    unite(col = y2y1, y2, y1, sep="", remove=FALSE) %>%
+    group_by(time_diff, y1, y2y1) %>% #GROUP ID REMOVED
+    summarise(count = n()) %>%
+    spread(key = y2y1, value = count, fill=NA, sep = "_n")
+  Z_par
+  }
+  if (id_rand_eff == TRUE){
+    Z_par <- Z %>% select(id, y1, y2, time_diff) %>%
+      unite(col = y2y1, y2, y1, sep="", remove=FALSE) %>%
+      group_by(id, time_diff, y1, y2y1) %>% #GROUPED BY SAMPLING UNITS ID
+      summarise(count = n()) %>%
+      spread(key = y2y1, value = count, fill=NA, sep = "_n")
+    Z_par
+  }
+
   if (bin_width == 1){
-    freq_tot <- freq %>%
-      dplyr::group_by(time_diff, y1) %>%
-      dplyr::summarise_all(dplyr::funs(sum))
+    freq_tot <- Z_par %>%
+      dplyr::mutate(success = ifelse(y1==1, y2y1_n11, y2y1_n10),
+                    failure = ifelse(y1==1, y2y1_n01, y2y1_n00))
+    mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff), data = freq_tot, family = "binomial") # excluding random intercept
+    LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))),]))
+    LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
+    LORs
   }
 
   if (bin_width > 1) {
@@ -164,31 +233,52 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
     }
 
     # build intervals
-    brks = seq(min(freq$time_diff, na.rm = TRUE), max(freq$time_diff, na.rm = TRUE)+bin_width, bin_width)
+    brks = seq(min(Z_par$time_diff, na.rm = TRUE), max(Z_par$time_diff, na.rm = TRUE)+bin_width, bin_width)
 
-    freq_tot <- freq %>%
-     dplyr::mutate(bin = cut(time_diff, brks, include.lowest = TRUE),
-                   Lag_midpoint = midpoints(bin)) %>%
-     dplyr::select(-bin) %>%
-     dplyr::group_by(Lag_midpoint) %>%
-     dplyr::summarise_all(dplyr::funs(sum)) %>%
-     dplyr::select(-time_diff) %>%
-     dplyr::rename(., time_diff = Lag_midpoint)
+    if (id_rand_eff == FALSE){
+      freq_tot <- Z_par %>%
+        dplyr::mutate(bin = cut(time_diff, brks, include.lowest = TRUE),
+                      Lag_midpoint = midpoints(bin)) %>%
+        dplyr::select(-bin) %>%
+        dplyr::group_by(Lag_midpoint, y1) %>%
+        dplyr::summarise_all(dplyr::funs(sum)) %>%
+        dplyr::select(-time_diff) %>%
+        dplyr::rename(., time_diff = Lag_midpoint) %>%
+        dplyr::mutate(success = ifelse(y1==1, y2y1_n11, y2y1_n10),
+                      failure = ifelse(y1==1, y2y1_n01, y2y1_n00))
+      freq_tot
+    }
+    if (id_rand_eff == TRUE){
+      freq_tot <- Z_par %>%
+        dplyr::mutate(bin = cut(time_diff, brks, include.lowest = TRUE),
+                      Lag_midpoint = midpoints(bin)) %>%
+        dplyr::select(-bin) %>%
+        dplyr::group_by(id, Lag_midpoint, y1) %>%
+        dplyr::summarise_all(dplyr::funs(sum)) %>%
+        dplyr::select(-time_diff) %>%
+        dplyr::rename(., time_diff = Lag_midpoint) %>%
+        dplyr::mutate(success = ifelse(y1==1, y2y1_n11, y2y1_n10),
+                      failure = ifelse(y1==1, y2y1_n01, y2y1_n00))
+      freq_tot
+    }
+
+# run model and extract coefficients
+    if (id_rand_eff == FALSE){
+      mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff), data = freq_tot, family = "binomial") # excluding random intercept
+      LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))),]))
+      LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
+      LORs
+    }
+    if (id_rand_eff == TRUE){
+      mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff) + (1|id), data = freq_tot, family = "binomial") # including random intercept
+      LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))-1),]))
+      LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
+      LORs
+    }
+    LORs
   }
-
-
-
-
-# #### Calculate log odds ratios (direct calculation)
-#+ Log_calculation
-ORs <- freq_tot %>% dplyr::group_by(time_diff) %>%
-  dplyr::summarize(or = sum(`11`)*sum(`00`)/(sum(`10`)*sum(`01`)),
-                   se = sqrt(1/sum(`11`)+1/sum(`00`)+1/sum(`10`)+1/sum(`01`)))
-ORs_all_minute <- ORs %>% dplyr::mutate(LORs=log(or),
-                                        U_95_CI = log(or)+1.96*se,
-                                        L_95_CI = log(or)-1.96*se)
-ORs_all_minute[!is.na(ORs_all_minute$or) & ORs_all_minute$or==0,4:6] <- NA #replace values when lor values were undefined
-LORs <- ORs_all_minute %>% dplyr::rename(., Lag=time_diff) %>% dplyr::select(c(Lag, LORs, U_95_CI, L_95_CI))
+  LORs
+} # close lor_type model-based
 
 if (write_csv == TRUE) { # save results
 
@@ -199,7 +289,7 @@ if (write_csv == TRUE) { # save results
     } else {
     filename <- paste(as.character(outDir), "/Log_odds_ratio_MaxLag_", as.character(max_lag),".csv", sep="")
     }
-  write.csv(x = ORs_all_minute, file = filename)
+  write.csv(x = LORs, file = filename)
 }
 
 if (plot_LOR == TRUE) { #plot lor values
