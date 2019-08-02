@@ -5,7 +5,8 @@
 #' @param data data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.
 #' @param data_format character. Data can be provided in "wide" (default) or "long" format. See details for more information.
 #' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.
-#' @param bin_width numeric. Number of lag in the original scale that should be included in each bin. The default (=1) represents no binning.
+#' @param lor_type character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.
+#' @param bin_width numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.
 #' @param plot_LOR logical. Create a plot of the results (default: TRUE)?
 #' @param write_csv logical. Should the output be saved as a .csv (default: FALSE)?
 #' @param outDir character. Directory into which .csv and plot file are saved.
@@ -14,13 +15,13 @@
 #'
 #' @examples
 #' data(GrayFox_Hour)
-#' lorelogram(GrayFox_Hour, max_lag = 120)
+#' lorelogram(GrayFox_Hour, max_lag = 60)
 #'
 #'
 #'
 #' @importFrom magrittr %>%
 #' @export
-lorelogram <- function(data, data_format = "wide", max_lag = 30, bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
+lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "empirical", bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -59,10 +60,11 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, bin_width = 1, 
   if (data_format == "long") {
     y <- dplyr::rename(data, id = names(data[1]), time = names(data[2]), y = names(data[3]))
     # Remove rows (=cameras) with no detection and prepare data
-    y <- y %>% dplyr::group_by(id) %>% dplyr::filter(sum(y, na.rm = TRUE) > 0) %>% droplevels()
+    y3 <- as.data.frame(y %>% dplyr::group_by(id) %>% dplyr::filter(sum(y, na.rm = TRUE) > 0) %>% droplevels())
+    y3[2:3] <- lapply(y3[2:3], as.numeric)
 
     # Define max number of reps
-    max_reps <- max(y$time, na.rm = TRUE)
+    max_reps <- max(y3$time, na.rm = TRUE)
 
   } # close long format
 
@@ -129,9 +131,8 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, bin_width = 1, 
     names(y.t1)<-c("time1", "id", "y1")
     names(y.t2)<-c("time2", "id", "y2")
     Z<-cbind(y.t1[,c(2,1,3)], y.t2[,c(1,3)])
-    Z<-Z %>% dplyr::mutate(time_diff=time2-time1)
-    #head(Z)
-    Z <- Z %>% dplyr::filter(!is.na(y1) & !is.na(y2))
+    Z<-Z %>% dplyr::mutate(time_diff=time2-time1) %>%
+      dplyr::filter(!is.na(y1) & !is.na(y2))
     freq <- Z %>%
       dplyr::group_by(time_diff, y1, y2) %>%
       dplyr::summarise(count=n()) %>%
