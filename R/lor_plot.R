@@ -30,7 +30,7 @@ lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9
       ggplot2::geom_line(ggplot2::aes(y = LORs, color = "LORs"), size=0.25, linetype=1) + #
       ggplot2::geom_hline(ggplot2::aes(yintercept=0), linetype="solid")+
       ggplot2::scale_colour_manual("",values="black") +
-      ggplot2::scale_fill_manual("",values="#0C71C9") +
+      ggplot2::scale_fill_manual("",values=colour) +
       ggplot2::labs(x = plot_x_title, y = "Log Odds Ratio", title = plot_title)+
       #coord_cartesian(ylim = c(-1,10), xlim=c(0,60))+ #
       ggplot2::theme_minimal()+
