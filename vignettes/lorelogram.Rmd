@@ -43,7 +43,7 @@ Here we focused on guiding new users on how to apply the lorelogram to their own
 
 The main function in the __lorelogram__ package is called _lorelogram_. This function allows users to calculate log-odds ratio at each spatial or temporal lag up to a maximum interval between subsequent observations. It also returns a plot of these values, the lorelogram plot, that graphically represents how the correlation changes with the increase of the spatial or temporal interval between observations. 
 
-We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota during fall 2017. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the _lorelogram_ function. 
+We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota during fall 2016. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the _lorelogram_ function. 
 
 ```{r ex1}
 data("GrayFox_Hour")
@@ -63,13 +63,18 @@ In this section we are going to illustrate how to apply the _lorelogram_ functio
 
 ## Data format <a name="data format"></a>
 
-The _lorelogram_ function accepts both wide and long data format. Wide format data should contain a sampling unit identifier in the first column and the binary data in the following columns, one for each sampling replicates. Each row should represent a sampling unit. 
+The _lorelogram_ function accepts both wide and long data format. Wide format data should contain a sampling unit identifier in the first column and the binary data in the following columns, one for each sampling replicates. Each row should represent a sampling unit. In the wide format, it is important to organize the data into the columns from first to last sampling occasion (with data for the first occasion contained in the second column, and so on) because the order of the columns will be then used in the function to define the spatial or temporal difference between two outcomes at the same sampling unit.
 ```{r ex3}
 GrayFox_Hour[24:28, 1:31]
 ```
-This subset of the GrayFox_Hour data shows detection/nondetection data collected at five sites during the first 30 hours of sampling. NAs indicate occasions in which the camera trap at a certain site was no yet active (e.g., sites 6A and 6C); at site 6B the camera trap was deployed and actived at the 25th hour of the whole period of study. 
+In this subset of the GrayFox_Hour data each column from the second to the last reports if the species has been detected (coded as 1) or not (coded as 0) during a certain hour. The data showed here have been collected at five sites during the first 30 hours of sampling. Note as the columns are ordered from hour 1 (column 'o1') to hour 30 (column 'o30'). NAs indicate occasions in which the camera trap at a certain site was no yet active (e.g., sites 6A and 6C); at site 6B the camera trap was deployed and actived at the 25th hour of the whole period of study. 
 
-
+In the long format data, information are organized in three columns, stricly in the order described here. The first column should contain the sampling unit identifier, the second should contain numeric values indicating the time or space of each replicate, the last column should contain the binary outcome.  
+```{r ex4}
+data("GrayFox_Hour_long")
+GrayFox_Hour_long[2501:2520,]
+```
+These data are a subset of the gray fox data organized in the long format and show the detection/nondetection outcomes (column 'y') at twenty different camera sites (column 'id') at the 26th hour of sampling (column 'time'). 
 
 Sites in which there are no detection (i.e. no 1s) for the whole sampling period will be removed because they do not contain information on correlation among detections. The function handles missing values (i.e. NAs) in the data; for each sampling units, these values will be removed before creating the pairwise detection histories at the different intervals.
 

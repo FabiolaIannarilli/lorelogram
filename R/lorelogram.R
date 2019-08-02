@@ -98,6 +98,7 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, bin_width = 1, 
   } # close wide format
 
   if (data_format == "long") {
+    y <- dplyr::rename(data, id = names(data[1]), time = names(data[2]), y = names(data[3]))
 
   } # close long format
 
