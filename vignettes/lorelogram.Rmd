@@ -30,7 +30,7 @@ knitr::opts_chunk$set(fig.align = "center", fig.width = 6, fig.height = 4,
 
 The __lorelogram__ package provides functions to explore and graphically describe correlation structures in binary data. The package is available on GitHub and can be downloaded in R (@RCoreTeam2018) via:
 
-```{r load pkg, warning = FALSE, message = FALSE}
+```{r load pkg, warning = FALSE, message = FALSE, results = 'hide'}
 if (!require("devtools")) install.packages("devtools", repos = "http://cran.us.r-project.org", dependencies = "Imports")
 devtools::install_github("FabiolaIannarilli/lorelogram", auth_token = "69451dbc8b643e18d5e25b488e0a485b59a93512") 
 library(lorelogram)
@@ -39,28 +39,41 @@ library(lorelogram)
 
 The method has been developed by @Heagerty1998 and is based on pairwise log-odds ratio. For more information on the method and on applications in ecological studies see @Iannarilli.
 
-Here we focused on guiding new users on how to apply the lorelogram to their own dataset. We provide step-by-step examples, and a comparison of the present function with other functions for calculating the lorelogram in R (@RCoreTeam2018). 
+Here we focused on guiding new users on how to apply the lorelogram to their own dataset. We provide step-by-step examples, and compare the efficiency of our _lorelogram_ function with other functions for calculating the lorelogram available in R (@RCoreTeam2018). 
 
-The main function in the __lorelogram__ package is called _lorelogram_. This function allows users to calculate log-odds ratio at each time lag up to a maximum lag between observations. It also returns a plot of these values, the lorelogram plot, that graphically represents how the correlation change with the increase of the spatial or temporal lag between observations. 
+The main function in the __lorelogram__ package is called _lorelogram_. This function allows users to calculate log-odds ratio at each spatial or temporal lag up to a maximum interval between subsequent observations. It also returns a plot of these values, the lorelogram plot, that graphically represents how the correlation changes with the increase of the spatial or temporal interval between observations. 
 
-We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the _lorelogram_ function. 
+We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota during fall 2017. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the _lorelogram_ function. 
 
 ```{r ex1}
 data("GrayFox_Hour")
 lorelogram(GrayFox_Hour)
 ```
 
-The output of the _lorelogram_ function can be assigned to an object that can be later used as the argument for the function _lor_plot_, that allows users to personalize the lorelogram plot and save it as a jpeg file.
+The _lorelogram_ function returns a data frame containing the estimated average log-odds ratio values and associate 95% confidence interval at each lag, and a plot of the estimates. The data frame component of the output can be assigned to an object that can be later used as the argument for the function _lor_plot_. This function allows users to save the plot as a jpeg file in a directory of their choice and have more control on how to personalize the lorelogram plot. For example, using _lor_plot_ we can assign a title to the plot and change the default label for the x axis.
 
 ```{r ex2}
 LORs <- lorelogram(GrayFox_Hour, plot_LOR = FALSE)
-lor_plot(LORs, save_LOR_plot = FALSE, plot_title = "My first lorelogram", plot_x_title = "Lag (Hour)")
+lor_plot(LORs, save_LOR_plot = FALSE, plot_title = "My first lorelogram", plot_x_title = "Lag (Hour)", colour="red")
 ```
 
 # How to apply the lorelogram
 
+In this section we are going to illustrate how to apply the _lorelogram_ function to new datasets using examples from @Iannarilli.  
 
 ## Data format <a name="data format"></a>
+
+The _lorelogram_ function accepts both wide and long data format. Wide format data should contain a sampling unit identifier in the first column and the binary data in the following columns, one for each sampling replicates. Each row should represent a sampling unit. 
+```{r ex3}
+GrayFox_Hour[24:28, 1:31]
+```
+This subset of the GrayFox_Hour data shows detection/nondetection data collected at five sites during the first 30 hours of sampling. NAs indicate occasions in which the camera trap at a certain site was no yet active (e.g., sites 6A and 6C); at site 6B the camera trap was deployed and actived at the 25th hour of the whole period of study. 
+
+
+
+Sites in which there are no detection (i.e. no 1s) for the whole sampling period will be removed because they do not contain information on correlation among detections. The function handles missing values (i.e. NAs) in the data; for each sampling units, these values will be removed before creating the pairwise detection histories at the different intervals.
+
+# Interpreting the lorelogram
 
 
 

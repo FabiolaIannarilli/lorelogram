@@ -5,6 +5,7 @@
 #' @param data output of \code{\link{lorelogram}} function.
 #' @param save_LOR_plot logical. Create a .jpg plot of the results (default: FALSE)?
 #' @param outDir character. Directory into which .csv and plot file are saved.
+#' @param colour character. Color to fill the confidence interval band (defaul: "#0C71C9")
 #' @param plot_title character. Title of the plot (default: NULL).
 #' @param plot_x_title character. Title of x-axis of the plot (default: Lag).
 #' @return The fucntion returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
@@ -17,7 +18,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", plot_title = "", plot_x_title = "Lag") {
+lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9", plot_title = "", plot_x_title = "Lag") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -29,7 +30,7 @@ lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", plot_title = "", 
       ggplot2::geom_line(ggplot2::aes(y = LORs, color = "LORs"), size=0.25, linetype=1) + #
       ggplot2::geom_hline(ggplot2::aes(yintercept=0), linetype="solid")+
       ggplot2::scale_colour_manual("",values="black") +
-      ggplot2::scale_fill_manual("",values="#2A4494") + #4F6D7A#F6511D
+      ggplot2::scale_fill_manual("",values="#0C71C9") +
       ggplot2::labs(x = plot_x_title, y = "Log Odds Ratio", title = plot_title)+
       #coord_cartesian(ylim = c(-1,10), xlim=c(0,60))+ #
       ggplot2::theme_minimal()+

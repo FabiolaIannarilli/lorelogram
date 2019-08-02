@@ -4,8 +4,8 @@
 \alias{lorelogram}
 \title{Calculate pairwise log-odds ratios at intervals of increasing length}
 \usage{
-lorelogram(data, max_lag = 30, bin_width = 1, write_csv = FALSE,
-  outDir = "")
+lorelogram(data, max_lag = 30, bin_width = 1, plot_LOR = TRUE,
+  write_csv = FALSE, outDir = "")
 }
 \arguments{
 \item{data}{data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.}
@@ -14,7 +14,9 @@ lorelogram(data, max_lag = 30, bin_width = 1, write_csv = FALSE,
 
 \item{bin_width}{numeric. Number of lag in the original scale that should be included in each bin. The default (=1) represents no binning.}
 
-\item{write_csv}{logical. Should output be saved as a .csv (default: FALSE)?}
+\item{plot_LOR}{logical. Create a plot of the results (default: TRUE)?}
+
+\item{write_csv}{logical. Should the output be saved as a .csv (default: FALSE)?}
 
 \item{outDir}{character. Directory into which .csv and plot file are saved.}
 }

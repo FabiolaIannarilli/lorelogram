@@ -1,5 +1,5 @@
 Package: lorelogram
-Title: Calculating pairwise log-odds ratios in binary data 
+Title: Correlation in binary data 
 Version: 0.0.0.9000
 Authors@R: c(person("Fabiola", "Iannarilli", email = "ianna014@umn.edu", role = c("aut", "cre")),
     person("John R", "Fieberg", email = "jfieberg@umn.edu", role = ("aut")))
@@ -8,7 +8,7 @@ date: "`r Sys.Date()`"
 Description: Describing correlation structures in binary data through pairwise
     log-odds ratio. Plotting log-odds ratio values calculated at a series of
     increasing intervals provides a graphical representation of how correlation 
-    changes at the increase of (spatial or temporal) distance between sampling 
+    changes at the increase of the (spatial or temporal)  interval between sampling 
     replicates.
 Depends: R (>= 3.6.0)
 Imports: dplyr (>= 0.8.0.1),

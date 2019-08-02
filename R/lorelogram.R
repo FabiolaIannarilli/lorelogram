@@ -3,6 +3,7 @@
 #' This function estimates pairwise log-odds ratios in binary data at intervals of increasing length between subsequent sampling replicates. Plotting of the estimates versus lags (see the \code{\link{lor_plot}} function) provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates.
 #'
 #' @param data data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.
+#' @param data_format character. Data can be provided in "wide" (default) or "long" format. See details for more information.
 #' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.
 #' @param bin_width numeric. Number of lag in the original scale that should be included in each bin. The default (=1) represents no binning.
 #' @param plot_LOR logical. Create a plot of the results (default: TRUE)?
@@ -19,7 +20,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lorelogram <- function(data, max_lag = 30, bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
+lorelogram <- function(data, data_format = "wide", max_lag = 30, bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -34,6 +35,8 @@ lorelogram <- function(data, max_lag = 30, bin_width = 1, plot_LOR = TRUE, write
          call. = FALSE)
   }
 
+
+  if (data_format == "wide") {
   # Remove rows (=cameras) with no detection and prepare data
   y <- data[rowSums(data[,2:ncol(data)], na.rm = TRUE) > 0,]
   y <- droplevels(y)
@@ -92,6 +95,11 @@ lorelogram <- function(data, max_lag = 30, bin_width = 1, plot_LOR = TRUE, write
   y3$y <- as.numeric(as.character(y3$y))
   #head(y3)
   rm(list=c("y2"))
+  } # close wide format
+
+  if (data_format == "long") {
+
+  } # close long format
 
   # #### Organize data: create pairwise detection histories
   # Create nested data frame with each row representing the data from a different time point.  This will make it easy to select data from all clusters where observations differ by a specific time lag.
