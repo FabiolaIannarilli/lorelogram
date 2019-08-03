@@ -218,10 +218,19 @@ if (lor_type == "model-based"){
     freq_tot <- Z_par %>%
       dplyr::mutate(success = ifelse(y1==1, y2y1_n11, y2y1_n10),
                     failure = ifelse(y1==1, y2y1_n01, y2y1_n00))
-    mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff), data = freq_tot, family = "binomial") # excluding random intercept
-    LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))),]))
-    LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
-    LORs
+    # run model and extract coefficients
+    if (id_rand_eff == FALSE){
+      mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff), data = freq_tot, family = "binomial") # excluding random intercept
+      LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))),]))
+      LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
+      LORs
+    }
+    if (id_rand_eff == TRUE){
+      mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff) + (1|id), data = freq_tot, family = "binomial") # including random intercept
+      LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))-1),]))
+      LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
+      LORs
+    }
   }
 
   if (bin_width > 1) {
@@ -246,7 +255,11 @@ if (lor_type == "model-based"){
         dplyr::rename(., time_diff = Lag_midpoint) %>%
         dplyr::mutate(success = ifelse(y1==1, y2y1_n11, y2y1_n10),
                       failure = ifelse(y1==1, y2y1_n01, y2y1_n00))
-      freq_tot
+      # run model and extract coefficients
+      mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff), data = freq_tot, family = "binomial") # excluding random intercept
+      LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))),]))
+      LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
+      LORs
     }
     if (id_rand_eff == TRUE){
       freq_tot <- Z_par %>%
@@ -259,17 +272,7 @@ if (lor_type == "model-based"){
         dplyr::rename(., time_diff = Lag_midpoint) %>%
         dplyr::mutate(success = ifelse(y1==1, y2y1_n11, y2y1_n10),
                       failure = ifelse(y1==1, y2y1_n01, y2y1_n00))
-      freq_tot
-    }
-
-# run model and extract coefficients
-    if (id_rand_eff == FALSE){
-      mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff), data = freq_tot, family = "binomial") # excluding random intercept
-      LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))),]))
-      LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
-      LORs
-    }
-    if (id_rand_eff == TRUE){
+      # run model and extract coefficients
       mod <- glmmTMB::glmmTMB(cbind(success, failure) ~ -1 + y1:as.factor(time_diff) + as.factor(time_diff) + (1|id), data = freq_tot, family = "binomial") # including random intercept
       LORs <- as.data.frame(cbind(Lag=unique(freq_tot$time_diff), confint(mod)[(length(unique(freq_tot$time_diff))+1):(nrow(confint(mod))-1),]))
       LORs <- dplyr::rename(LORs, L_95_CI=names(LORs[2]), U_95_CI=names(LORs[3]), LORs=names(LORs[4]))
