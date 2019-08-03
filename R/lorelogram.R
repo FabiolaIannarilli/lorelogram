@@ -198,11 +198,12 @@ LORs
 if (lor_type == "model-based"){
   # organize the data
   if (id_rand_eff == FALSE){
-    Z_par <- Z %>% select(id, y1, y2, time_diff) %>%
-      unite(col = y2y1, y2, y1, sep="", remove=FALSE) %>%
-      group_by(time_diff, y1, y2y1) %>% #GROUP ID REMOVED
-      summarise(count = n()) %>%
-      spread(key = y2y1, value = count, fill=NA, sep = "_n")
+    Z_par <- Z %>%
+      dplyr::select(id, y1, y2, time_diff) %>%
+      tidyr::unite(col = y2y1, y2, y1, sep="", remove=FALSE) %>%
+      dplyr::group_by(time_diff, y1, y2y1) %>% #GROUP ID REMOVED
+      dplyr::summarise(count = n()) %>%
+      tidyr::spread(key = y2y1, value = count, fill=NA, sep = "_n")
 
     if (bin_width == 1){
       freq_tot <- Z_par %>%
@@ -239,11 +240,12 @@ if (lor_type == "model-based"){
   } #close random effect false
 
   if (id_rand_eff == TRUE){
-    Z_par <- Z %>% select(id, y1, y2, time_diff) %>%
-      unite(col = y2y1, y2, y1, sep="", remove=FALSE) %>%
-      group_by(id, time_diff, y1, y2y1) %>% #GROUPED BY SAMPLING UNITS ID
-      summarise(count = n()) %>%
-      spread(key = y2y1, value = count, fill=NA, sep = "_n")
+    Z_par <- Z %>%
+      dplyr::select(id, y1, y2, time_diff) %>%
+      tidyr::unite(col = y2y1, y2, y1, sep="", remove=FALSE) %>%
+      dplyr::group_by(id, time_diff, y1, y2y1) %>% #GROUPED BY SAMPLING UNITS ID
+      dplyr::summarise(count = n()) %>%
+      tidyr::spread(key = y2y1, value = count, fill=NA, sep = "_n")
 
     if (bin_width == 1){
       freq_tot <- Z_par %>%

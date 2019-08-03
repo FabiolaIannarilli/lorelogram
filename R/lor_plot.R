@@ -6,9 +6,10 @@
 #' @param save_LOR_plot logical. Create a .jpg plot of the results (default: FALSE)?
 #' @param outDir character. Directory into which .csv and plot file are saved.
 #' @param colour character. Color to fill the confidence interval band (defaul: "#0C71C9")
+#' @param linetype character. Linetype for the average log-odds ratio values (default: "solid"). It accepts all the linetype available for ggplot2::geom_line.
 #' @param plot_title character. Title of the plot (default: NULL).
 #' @param plot_x_title character. Title of x-axis of the plot (default: Lag).
-#' @return The fucntion returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
+#' @return The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
 #' @details \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
 #'
 #' @examples
@@ -18,7 +19,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9", plot_title = "", plot_x_title = "Lag") {
+lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9", linetype = "solid", plot_title = "", plot_x_title = "Lag") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -27,7 +28,7 @@ lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9
 
   plot_LOR_all <-  ggplot2::ggplot(data, ggplot2::aes(x = Lag)) +
       ggplot2::geom_ribbon(ggplot2::aes(ymin = L_95_CI, ymax = U_95_CI, fill = "95 % CI"), alpha = 0.65) +
-      ggplot2::geom_line(ggplot2::aes(y = LORs, color = "LORs"), size=0.25, linetype=1) + #
+      ggplot2::geom_line(ggplot2::aes(y = LORs, color = "LORs"), size=0.25, linetype=linetype) + #
       ggplot2::geom_hline(ggplot2::aes(yintercept=0), linetype="solid")+
       ggplot2::scale_colour_manual("",values="black") +
       ggplot2::scale_fill_manual("",values=colour) +
