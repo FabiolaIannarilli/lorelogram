@@ -44,7 +44,6 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
   y <- droplevels(y)
   colnames(y) <- c("id", paste0("R", seq(1, (ncol(y)-1), 1), sep="")) # rename columns
 
-  #y <- dplyr::rename(y, id=names(y[1]))
 
   # #### Organize data: from wide format to long format
   #+ organize1
