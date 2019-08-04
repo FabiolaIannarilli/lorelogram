@@ -29,6 +29,7 @@
 #'
 #' @export
 lor_lag_to_indep <- function(data, n_knots = 5, plot_results = TRUE, outDir = "", plot_title = "", plot_x_title = "Lag"){
+
 lor <- data
 
 #' Fit cubic spline
