@@ -4,15 +4,22 @@
 \alias{lorelogram}
 \title{Calculate pairwise log-odds ratios at intervals of increasing length}
 \usage{
-lorelogram(data, max_lag = 30, bin_width = 1, plot_LOR = TRUE,
-  write_csv = FALSE, outDir = "")
+lorelogram(data, data_format = "wide", max_lag = 30,
+  lor_type = "empirical", id_rand_eff = FALSE, bin_width = 1,
+  plot_LOR = TRUE, write_csv = FALSE, outDir = "")
 }
 \arguments{
 \item{data}{data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.}
 
+\item{data_format}{character. Data can be provided in "wide" (default) or "long" format. See details for more information.}
+
 \item{max_lag}{numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.}
 
-\item{bin_width}{numeric. Number of lag in the original scale that should be included in each bin. The default (=1) represents no binning.}
+\item{lor_type}{character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.}
+
+\item{id_rand_eff}{logical. Conditional on lor_type = "model-based". Does the model has to include sampling unit ID as random effect?}
+
+\item{bin_width}{numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.}
 
 \item{plot_LOR}{logical. Create a plot of the results (default: TRUE)?}
 
@@ -31,7 +38,7 @@ This function estimates pairwise log-odds ratios in binary data at intervals of 
 }
 \examples{
 data(GrayFox_Hour)
-lorelogram(GrayFox_Hour, max_lag = 120)
+lorelogram(GrayFox_Hour, max_lag = 60)
 
 
 

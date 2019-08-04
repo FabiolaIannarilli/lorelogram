@@ -32,22 +32,15 @@ lor_lag_to_indep <- function(data, n_knots = 5, plot_results = TRUE, outDir = ""
 
 lor <- data
 
-#' Fit cubic spline
+# Fit cubic spline
 # High number of knots to better approximate the LORs values
 fit <- lm(lor$LORs~splines::bs(lor$Lag, knots = n_knots)) #bs used to fit a cubic spline.
 
-#' Calculate derivative
+# Calculate derivative
 X <- data.frame(Lag=seq(min(lor$Lag),max(lor$Lag),by=1) ) # make an ordered sequence
 Y <- predict(fit,newdata=X) # calculate predictions for that sequence
 dY <- diff(Y)/diff(X$Lag)  # the derivative of the function
 dX <- rowMeans(embed(X$Lag,2)) # centers the X values for plotting
-
-#' Plot
-#par(mfrow=c(1,2))
-#plot(lor$Lag, lor$LORs, main="Original fit", xlab = "Lag", ylab = "Log-odds ratio")
-#lines(X$Lag,Y,type="l", col="red")
-#legend("topright", legend="Cubic spline", col = "red", lty = 1, cex = 0.5)
-#plot(dX,dY,type="l",main="Derivative")
 
 a <- ggplot2::ggplot(lor, aes(x = Lag, y = LORs))+
   ggplot2::geom_point()+
@@ -66,7 +59,7 @@ b <- ggplot2::ggplot(data = NULL, aes(x = dX, y = dY))+
   theme(plot.title=element_text(hjust = 0.5, vjust = 0.5))
 c <- gridExtra::grid.arrange(a,b)
 
-#' Identify time-to-independence
+# Identify time-to-independence
 which(abs(dY-0)==min(abs(dY-0))) #values closest to the zero
 
 }
