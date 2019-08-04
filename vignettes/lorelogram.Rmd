@@ -54,7 +54,7 @@ The `lorelogram` function returns a data frame containing the estimated average 
 
 ```{r ex2}
 LORs <- lorelogram(GrayFox_Hour, plot_LOR = FALSE)
-lor_plot(LORs, save_LOR_plot = FALSE, plot_title = "My first lorelogram", plot_x_title = "Lag (Hour)", colour="red")
+lor_plot(LORs, save_LOR_plot = FALSE, plot_title = "My first lorelogram", plot_x_title = "Lag (Hour)", colour="red", linetyoe = "dashed")
 ```
 
 # How to apply the lorelogram
