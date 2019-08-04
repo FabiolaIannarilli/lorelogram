@@ -37,7 +37,6 @@ lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9
       ggplot2::labs(x = x_axis_title, y = y_axis_title, title = title)+{
         if (!is.null(ylim)) coord_cartesian(ylim = ylim)
       } +
-      coord_cartesian(ylim = c(-1,10), xlim=c(0,60))+ #
       ggplot2::theme_minimal()+
       ggplot2::theme(legend.justification = c(1, 1), legend.position = "none",
                      axis.line.y = ggplot2::element_line(colour = 'black', linetype = 'solid'),
