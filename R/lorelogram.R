@@ -42,7 +42,7 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
   # Remove rows (=cameras) with no detection and prepare data
   y <- data[rowSums(data[,2:ncol(data)], na.rm = TRUE) > 0,]
   y <- droplevels(y)
-  colnames(y) <- c("id", paste0("R", seq(1, J, 1), sep=""))
+  colnames(y) <- c("id", paste0("R", seq(1, J, 1), sep="")) # rename columns
 
   #y <- dplyr::rename(y, id=names(y[1]))
 
