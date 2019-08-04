@@ -67,7 +67,6 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
 
     # Define max number of reps
     max_reps <- max(y3$time, na.rm = TRUE)
-
   } # close long format
 
 
