@@ -40,8 +40,8 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
 
   if (data_format == "wide") {
 
-    if (length(sappldata(data[,2:ncol(data)], is.factor)[sappldata(data[,2:ncol(data)], is.factor)==TRUE])>0) {
-      indx <- sappldata(data[,2:ncol(data)], is.factor)
+    if (length(sapply(data[,2:ncol(data)], is.factor)[sapply(data[,2:ncol(data)], is.factor)==TRUE])>0) {
+      indx <- sapply(data[,2:ncol(data)], is.factor)
       data[,2:ncol(data)][indx] <- lappldata(data[,2:ncol(data)], function(x) as.numeric(as.character(x)))
       warning("Second to last columns in data were converted from factor to numeric")
     }
