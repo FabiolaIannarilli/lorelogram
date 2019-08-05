@@ -10,7 +10,8 @@
 #' @param title character. Title of the plot (default: NULL).
 #' @param x_axis_title character. Title of x-axis of the plot (default: "Lag").
 #' @param y_axis_title character. Title of y-axis of the plot (default: "Log-odds ratio").
-#' @param ylim numeric. Vector of two values c(y_min, y_max) defining range for the y axis (default: NULL).
+#' @param ylim numeric. Vector of two values \code{c(y_min, y_max)} defining range for the y axis (default: NULL).
+#' @param x_break numeric. Unit-lag distance between primary breaks in the x_axis (default: 10).
 #' @return The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
 #' @details \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
 #'
@@ -21,7 +22,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9", linetype = "solid", title = "", x_axis_title = "Lag", y_axis_title = "Log-odds ratio", ylim = NULL) {
+lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9", linetype = "solid", title = "", x_axis_title = "Lag", y_axis_title = "Log-odds ratio", ylim = NULL, x_break = 10) {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -47,7 +48,7 @@ lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9
                      panel.grid.major.y = ggplot2::element_blank(),
                      panel.grid.major.x = ggplot2::element_line(colour = 'grey', linetype = 'solid', size=0.25),
                      panel.grid.minor.x = ggplot2::element_line(colour = 'grey', linetype = 'dashed', size=0.25))+
-      ggplot2::scale_x_continuous(breaks=seq(0,max(data$Lag),10), labels=seq(0,max(data$Lag),10))
+       ggplot2::scale_x_continuous(breaks=seq(0,max(data$Lag),x_break), labels=seq(0,max(data$Lag),x_break))
     plot_LOR_all
 
   if (save_LOR_plot == TRUE) { #save plot
