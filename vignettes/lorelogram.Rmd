@@ -36,52 +36,61 @@ devtools::install_github("FabiolaIannarilli/lorelogram", auth_token = "69451dbc8
 library(lorelogram)
 ```
 
-
-The method has been developed by @Heagerty1998 and is based on pairwise log-odds ratio. For more information on the method and on applications in ecological studies see @Iannarilli.
+The lorelogram is a very usufel tool to identify dependency structure in binary data, guide data aggregation, explore the effect of covariates on the correlation in the data. It can also be applied to explore the dependency in a certain dataset at different spatial or temporal scales (e.g., camera trap data analyzed at the hour- or minute-scale). See @Iannarilli for examples of applications. The method has been developed by @Heagerty1998 and is based on pairwise log-odds ratio. For more information on the method and on applications in ecological studies see @Iannarilli.
 
 Here we focused on guiding new users on how to apply the lorelogram to their own dataset. We provide step-by-step examples, and compare the efficiency of our `lorelogram` function with other functions for calculating the lorelogram available in R (@RCoreTeam2018). 
 
 The main function in the __lorelogram__ package is called `lorelogram`. This function allows users to calculate log-odds ratio at each spatial or temporal lag up to a maximum interval between subsequent observations. It also returns a plot of these values, the lorelogram plot, that graphically represents how the correlation changes with the increase of the spatial or temporal interval between observations. 
 
-We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota during fall 2016. We provided further details on the structure of this data in the [Data format] section. Here we just load the data and apply the `lorelogram` function. 
+We use the data associated with the package to provide a first example. This dataset consists of detection/nondetection data of gray fox (_Urocyon cinereoargenteus_) collected using camera traps at 100 locations in Northern Minnesota during fall 2016. We provided details on the structure of this data in the [Data format] section whereas further data on the sampling protocol are available at \url{https://drive.google.com/drive/folders/12cx59tZvPndOWqH7TG6XKGPFd6HyBjMR?usp=sharing}. We just load the data and apply the `lorelogram` function. 
 
 ```{r ex1}
 data("GrayFox_Hour")
-lorelogram(GrayFox_Hour)
+lorelogram(GrayFox_Hour, max_lag = 30)
 ```
 
-The `lorelogram` function returns a data frame containing the estimated average log-odds ratio values and associate 95% confidence interval at each lag, and a plot of the estimates. The data frame component of the output can be assigned to an object that can be later used as the argument for the function `lor_plot`. This function allows users to save the plot as a jpeg file in a directory of their choice and have more control on how to personalize the lorelogram plot. For example, using `lor_plot` we can assign a title to the plot and change the default label for the x axis.
+The `lorelogram` function returns a data frame containing the estimated average log-odds ratio values and associate 95% confidence interval at each lag (defined by the parameter \code{max_lag}), and a plot of the estimates. The data frame component of the output can be assigned to an object that can be later used as the argument for the function `lor_plot`. This second function allows users to save the plot as a jpeg file in a directory of their choice and have more control on plot features. For example, using `lor_plot` we can assign a title to the plot, change the default label for the x axis and the linetype, specify the color of the 95% confidence interval, the  distance among breaks in the x axis, and the range of the y axis.
 
 ```{r ex2}
 LORs <- lorelogram(GrayFox_Hour, plot_LOR = FALSE)
-lor_plot(LORs, save_LOR_plot = FALSE, plot_title = "My first lorelogram", plot_x_title = "Lag (Hour)", colour="red", linetyoe = "dashed")
+lor_plot(LORs, save_LOR_plot = FALSE, title = "My first lorelogram", x_axis_title = "Lag (Hour)", colour="red", linetype = "dashed", x_break = 24, ylim = c(-2,5))
 ```
 
 # How to apply the lorelogram
 
-In this section we are going to illustrate how to apply the `lorelogram` function to new datasets. The lorelogram is a very usufel tool to identify dependency structure in binary data, guide data aggregation, explore the effect of covariates on the correlation in the data. It can also be applied to explore the dependency in a certain dataset at different spatial or temporal scales (e.g., camera trap data analyzed at the hour- or minute-scale). See @Iannarilli for examples of applications.   
+In this section we are going to illustrate how to apply the `lorelogram` function to new datasets, briefly explore the differences between empirical and model-based lorelogram, provide some guidance on when and why might be convinient to bin the data, and show how to determine time to independence using a derivate-based approach.   
 
 ## Data format <a name="data format"></a>
 
-The `lorelogram` function accepts both wide and long data format. Wide format data should contain a sampling unit identifier in the first column and the binary data in the following columns, one for each sampling replicates. Each row should represent a sampling unit. In the wide format, it is important to organize the data into the columns from first to last sampling occasion (with data for the first occasion contained in the second column, and so on) because the order of the columns will be then used in the function to define the spatial or temporal difference between two outcomes at the same sampling unit.
+The `lorelogram` function accepts both wide and long data format. Wide format data should contain a sampling unit identifier in the first column and the binary data in the following columns, one for each sampling replicates. Each row should represent a sampling unit. In the wide format, it is important to organize the data into the columns from first to last sampling occasion (with data for the first replicate contained in the second column, second replicate in third column, and so on) because the order of the columns will be then be used by the function to define the spatial or temporal interval between two outcomes at the same sampling unit.
+
 ```{r ex3}
 GrayFox_Hour[24:28, 1:31]
 ```
-In this subset of the GrayFox_Hour data each column from the second to the last reports if the species has been detected (coded as 1) or not (coded as 0) during a certain hour. The data showed here have been collected at five sites during the first 30 hours of sampling. Note as the columns are ordered from hour 1 (column 'o1') to hour 30 (column 'o30'). NAs indicate occasions in which the camera trap at a certain site was no yet active (e.g., sites 6A and 6C); at site 6B the camera trap was deployed and actived at the 25th hour of the whole period of study. 
+In this subset of the GrayFox_Hour data each column from the second to the last reports the binary data: the dectection of the species during a certain hour is coded as 1, 0 otherwise. The data showed here have been collected at five sites during the first 30 hours of sampling. Note as the columns are ordered from hour 1 (column 'o1') to hour 30 (column 'o30'). NAs indicate occasions in which the camera trap at a certain site was no yet active (e.g., sites 6A and 6C); at site 6B the camera trap was deployed and actived at the 25th hour since the start of the whole period of study. 
 
-In the long format data, information are organized in three columns, stricly in the order described here. The first column should contain the sampling unit identifier, the second should contain numeric values indicating the time or space of each replicate, the last column should contain the binary outcome.  
+In the long format data, information are organized in three columns, that must be organized in the order described here. The first column contains the sampling unit identifier, the second contains numeric values indicating the time or space of each replicate, the last column contains the binary outcome.
+
 ```{r ex4}
 data("GrayFox_Hour_long")
 GrayFox_Hour_long[2501:2520,]
 ```
-These data are a subset of the gray fox data organized in the long format and show the detection/nondetection outcomes (column 'y') at twenty different camera sites (column 'id') at the 26th hour of sampling (column 'time'). 
 
-Sites in which there are no detection (i.e. no 1s) for the whole sampling period will be removed because they do not contain information on correlation among detections. The function handles missing values (i.e. NAs) in the data; for each sampling units, these values will be removed before creating the pairwise detection histories at the different intervals.
+These data are a subset of the same gray fox data organized in the long format and show the detection/nondetection outcomes (column 'y') at twenty different camera sites (column 'id') at the 26th hour of sampling (column 'time'). 
+
+Sites in which there are no detection (i.e. no 1s) for the whole sampling period are automatically removed because they do not contain information on correlation among detections. The `lorelogram` function handles missing values (i.e. NAs) in the data; for each sampling units, these values will be removed before creating the pairwise detection histories at the different intervals.
 
 ## Interpreting the lorelogram
 
-Lorelogram plots provide a graphical description of how the correlation in the data changes with the increase of the interval between sampling occasions. Their interpretation vary based on the resolution of the data (e.g., hour- versus minute-occasion), and the context in which it is applied (e.g., spatial versus temporal dependency). Here we provide some general guidance on how to interpret the lorelogram using .   
+Lorelogram plots provide a graphical description of how the correlation in the data changes with the increase of the interval between sampling occasions. Their interpretation vary based on the resolution of the data (e.g., hour- versus minute-scale), and the context in which it is applied (e.g., spatial versus temporal dependency). Here we provide some general guidance on how to interpret the lorelogram. 
 
+## How the `lorelogram` function works 
+
+The lorelogram requires binary data at each sampling unit (e.g. a camera site) summarized at the scale of interest (e.g. by day, hour, or minute). The `lorelogram` function first remove sampling units with no detection and convert the detection/non-detection data from wide to long format if necessary (Fig. S2-1, step A). Then, for each sampling unit, it pairs outcomes at different replicates based on all the possible combinations of lags ≤\code(max_lag) unit-lag apart (Fig. S2-1, step B). The combinations are obtained using the function `combinations` in package __arrangements__ @Lai2018, whereas the pairing is performed using the `nest` and `unnest` functions in __tidyverse__ @Hadley2017. For each discrete interval (i.e. 1 through \code(max_lag)), the function tabulated the number of occurrence of each pairwise detection history ‘11’, ‘10’, ‘01’, or ‘00’ at each sampling units, and then pool data across units if more then one unit has been sampled. In the empirical lorelogram, these values are used to calculate the average log-odds ratio value at each interval as:
+$$$$
+〖LOR〗_∆t=loga〖(〖(n〗_(11,∆t)*n_(00,∆t)))/(〖(n〗_(01,∆t)*n_(10,∆t)))〗               [eq. S2-1]
+The 95% confidence interval at each time interval was calculated as:
+〖CI〗_∆t^(95%)= 〖LOR〗_∆t∓1.96*√(1/n_(11,∆t) +1/n_(00,∆t) +1/n_(01,∆t) +1/n_(10,∆t) )
 
 
 
