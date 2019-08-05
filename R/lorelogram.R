@@ -37,13 +37,15 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
          call. = FALSE)
   }
 
-  if (length(sapply(y[,2:ncol(y)], is.factor)[sapply(y[,2:ncol(y)], is.factor)==TRUE])>0) {
-  indx <- sapply(y[,2:ncol(y)], is.factor)
-  y[,2:ncol(y)][indx] <- lapply(y[,2:ncol(y)], function(x) as.numeric(as.character(x)))
-  warning("Second to last columns in data were converted from factor to numeric")
-  }
 
   if (data_format == "wide") {
+
+    if (length(sappldata(data[,2:ncol(data)], is.factor)[sappldata(data[,2:ncol(data)], is.factor)==TRUE])>0) {
+      indx <- sappldata(data[,2:ncol(data)], is.factor)
+      data[,2:ncol(data)][indx] <- lappldata(data[,2:ncol(data)], function(x) as.numeric(as.character(x)))
+      warning("Second to last columns in data were converted from factor to numeric")
+    }
+
   # Remove rows (=cameras) with no detection and prepare data
   y <- data[rowSums(data[,2:ncol(data)], na.rm = TRUE) > 0,]
   y <- droplevels(y)
