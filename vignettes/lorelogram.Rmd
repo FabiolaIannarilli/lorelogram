@@ -140,7 +140,7 @@ Strayer's function is focused on temporal datasets and, contrary to `lorelogram`
 
 
 The `EVariogram` function in the __CompRandFld__ package
-```{r ex7}
+```{r ex7, eval=FALSE, include=FALSE}
 library(CompRandFld) #EVariogram
  
 
