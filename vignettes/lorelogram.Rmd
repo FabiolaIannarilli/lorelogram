@@ -1,7 +1,7 @@
 ---
 title: "Lorelogram: describing correlation structure in binary data"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-bibliography: C:/Users/Fabiola/Documents/Bibtex/Lorelogram Vignette.bib
+bibliography: vignettes/Lorelogram Vignette.bib
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Lorelogram: describing correlation structure in binary data}
@@ -89,9 +89,77 @@ Lorelogram plots provide a graphical description of how the correlation in the d
 The lorelogram requires binary data at each sampling unit (e.g. a camera site) summarized at the scale of interest (e.g. by day, hour, or minute). The `lorelogram` function first remove sampling units with no detection and convert the detection/non-detection data from wide to long format if necessary (Fig. 1, step A). Then, for each sampling unit, it pairs outcomes at different replicates based on all the possible combinations of lags ≤\code(max_lag) unit-lag apart (Fig. 1, step B). The combinations are obtained using the function `combinations` in package __arrangements__ @Lai2018, whereas the pairing is performed using the `nest` and `unnest` functions in __tidyverse__ @Hadley2017. For each discrete interval (i.e. 1 through \code(max_lag)), the function tabulated the number of occurrence of each pairwise detection history ‘11’, ‘10’, ‘01’, or ‘00’ at each sampling units, and then pool data across units if more then one unit has been sampled (Fig. 1, step C). In the empirical lorelogram, these values are used to calculate the average log-odds ratio value at each interval as: $LOR=\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}$ . The 95% confidence interval at each lag is calculated as: $CI^{95\%} = LOR\pm1.96*\sqrt{\frac{1}{n_{11}}+\frac{1}{n_{00}}+\frac{1}{n_{10}}+\frac{1}{n_{11}}}$.
 ![Figure 1. Conceptual diagram of the formatting process undergoing in the `lorelogram` function. Example of how camera trap data are converted from detection histories to the counts necessary to calculate the lorelogram values (i.e. pairwise log-odds ratios). Detection histories are first converted from wide to long format (A), then the fucntion compile the outcomes $y_{i}$ and $y_{j}$ as pairwise detections based on all the possible pairwise combinations of time _i_ and _j_ within the maximum time lag ($\Delta t$) considered (B). Finally, for each value of $\Delta t$, we counted the number of 00, 01, 10, 00 detection histories, respectively (C), across all values of _i_ and _j_ that were $\Delta t$ units apart.](C:/Users/Fabiola/Documents/PhD Matherial/LORELOGRAM_TEMPORAL DEPENDENCY/Writing/fig Data formatting_cropped.jpg){width=50%}
 
-## 2.4 Computational challenges
+# 3. `lorelogram`: computational time
 
-The most demanding step in terms of computational effort is creating the pairwise detection histories at the different lags (step B in Fig. 1). This step can be quite demanding when estimating log-odds ratios in large datasets because of the large amount of potential pairwise combinations of replications (e.g. $y_{t_{1}},y_{t_{2}}$. For example, a camera trapping period of one week corresponds to 10 080 potential detection events at the minute scale (i.e. 7 days x 24 hours x 60 minutes) for each camera deployed. This results in over 50 million possible combinations of $t_{i},t_{j}$. Even limiting combinations to only those ≤60 minutes apart, decreases this number to just around 603 000 combinations for each camera site. However, describing the detection structure up to 1 hour is sufficient to identify short-term dependency in camera trap data and keeps the computational time and RAM required within acceptable limits. The  `lorelogram` function required ~30 minutes on a regular Windows machine (8 GB; Intel® Core™ i7-4500U CPU @ 1.80GHz 2.40GHz) to compile the lorelogram for time lags between 0 and 60 minutes using 62 days of camera trap data collected from 31 camera sites (see figure 5a in @Iannarilli).
+The most demanding step in terms of computational effort is creating the pairwise detection histories at the different lags (step B in Fig. 1). This step can be quite demanding when estimating log-odds ratios in __large datasets__ because of the large amount of potential pairwise combinations of replications (e.g. $y_{t_{1}},y_{t_{2}}$. For example, a camera trapping period of one week corresponds to 10 080 potential detection events at the minute scale (i.e. 7 days x 24 hours x 60 minutes) for each camera deployed. This results in over 50 million possible combinations of $t_{i},t_{j}$. Even limiting combinations to only those ≤60 minutes apart, decreases this number to just around 603 000 combinations for each camera site. However, describing the detection structure up to 1 hour is sufficient to identify short-term dependency in camera trap data and keeps the computational time and RAM required within acceptable limits. The  `lorelogram` function required ~30 minutes on a regular Windows machine (8 GB; Intel® Core™ i7-4500U CPU @ 1.80GHz 2.40GHz) to compile the lorelogram for time lags between 0 and 60 minutes using 62 days of camera trap data collected from 31 camera sites (see figure 5a in @Iannarilli).
+
+## 3.1  Comparison with other functions
+
+Other functions are avaialable to build lorelograms in R. Specifically, at the time of writing this manuscript, we are aware of two other functions:
+ 
+ *  a script by Nick Strayer available at \url{https://github.com/nstrayer/nviz/blob/master/R/lorelogram.R}. 
+ 
+ *  and the function EVariogram included in the __CompRandFld__ package (\url{https://cran.r-project.org/web/packages/CompRandFld/CompRandFld.pdf}). (spatial).
+ 
+Here we show how the function `lorelogram` in the __lorelogram__ package can handle larger datasets and build lorelogram in a shorter amount of time compared to the other two functions listed above. We also list some advantages and disadvantage of using one option compare to the others. We start importing the example dataset provided within the __lorelogram__ package and the package necessary to perform the test. We use the gray fox data in the long format because this is same format required by the other two functions. We also remove all the records with NAs since we are not sure how the two other functions will handle missing data (`lorelogram` removes records with missing data in the detection column). In this way, we can make time comparison among functions more direct.  
+ 
+```{r ex5}
+# load package and data  
+library(tictoc) # for timing the code
+library(tidyverse)
+
+data("GrayFox_Hour_long")
+dim(GrayFox_Hour_long)
+str(GrayFox_Hour_long)
+GrayFox_Hour_long <- GrayFox_Hour_long %>% filter(!is.na(y)) # remove NAs in detection/nondetection
+dim(GrayFox_Hour_long) # new dataset dimensions
+head(GrayFox_Hour_long)
+range(GrayFox_Hour_long$time) # number of replicates
+```
+
+We begin the test by timing Nick Strayer's function. We load the function and apply it to our dataset. This function requires three columns to load the data and a title for the resulting plot (from function's script):
+* id = patient or cluster ids
+* time = time of measurement
+* y = binary outcome
+* title = title for the plot produced.
+
+```{r ex6, eval=FALSE, include=FALSE}
+# load nstrayer's function and data  
+library(devtools)
+source_url("https://github.com/nstrayer/nviz/blob/master/R/lorelogram.R?raw=TRUE")  
+
+tic()
+lorelogram(id = GrayFox_Hour_long$id, time = GrayFox_Hour_long$time, y = GrayFox_Hour_long$y, title = "Strayer's lorelogram")
+toc()
+
+#Error: cannot allocate vector of size 733.7 Gb
+
+```
+
+Strayer's function is focused on temporal datasets and, contrary to `lorelogram`, exclusively adopts a parametric approach to build the lorelogram: it uses a logistic model to 'predict past outcomes from future by utilizing time differences' (as reported in the function). This function does not have a parameter to set the maximum spatial or temporal lag to consider and all the pairwise combinations between replicate number 1 and and last replicate are be considered. This results in extremely long computational time when data contain a large number of replicates, such as in the example dataset (i.e. 1489 temporal replicates).    
+
+
+The `EVariogram` function in the __CompRandFld__ package
+```{r ex7}
+library(CompRandFld) #EVariogram
+ 
+
+tic()
+lor_Evar <- EVariogram(data = GrayFox_Hour_long$y, coordx = GrayFox_Hour_long$time, coordy = rep(1, nrow(GrayFox_Hour_long)), maxdist = 30, type = "lorelogram", numbins = 30) 
+toc() #183.58 sec elapsed
+
+
+par(mfrow=c(2,1))
+plot(lor_Evar$centers, lor_Evar$variograms, "l", ylim = c(-1,5), col = "green")
+lines(lor_lor$Lag, lor_lor$LORs, ylim = c(-1,5), col = "red")
+lines(lor_lor$Lag, lor_lor$U_95_CI, lty = 2, col = "red")
+lines(lor_lor$Lag, lor_lor$L_95_CI, lty = 2, col = "red")
+dev.off()
+
+```
+
+
+
 
 
 # References

@@ -10,7 +10,7 @@ Description: Describing correlation structures in binary data through pairwise
     increasing intervals provides a graphical representation of how correlation 
     changes at the increase of the (spatial or temporal)  interval between sampling 
     replicates.
-Depends: R (>= 3.6.0)
+Depends: R (>= 3.0.0)
 Imports: dplyr (>= 0.8.0.1),
          ggplot2 (>= 3.1.1),
          arrangements (>= 1.1.5),
