@@ -160,16 +160,16 @@ For a certain set of data, there is usually an optimal binning value that balanc
 
 ```{r ex 12}
 #' Load data
-lorelogram(GrayFox_minute_lureSal)
+data(GrayFox_minute_lureSal)
 
 # bin_width = 1 corresponds to no binning
 tic()
-LORs_no_bin <- lorelogram(GrayFox_minute_lureSal[,-89283], max_lag = 60, bin_width = 1, plot_LOR = FALSE)
+LORs_no_bin <- lorelogram(GrayFox_minute_lureSal, max_lag = 60, bin_width = 1, plot_LOR = FALSE)
 toc()
 
 # bin_width = 10
 tic()
-LORs_10_bin <- lorelogram(GrayFox_minute_lureSal[,-89283], max_lag = 60, bin_width = 10, plot_LOR = FALSE)
+LORs_10_bin <- lorelogram(GrayFox_minute_lureSal, max_lag = 60, bin_width = 10, plot_LOR = FALSE)
 toc()
 
 LORs_no_bin$binning <- "bin_width = 1"
