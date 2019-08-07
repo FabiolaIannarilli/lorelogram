@@ -1,7 +1,7 @@
 ---
 title: "Lorelogram: describing correlation structure in binary data"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-bibliography: vignettes/Lorelogram Vignette.bib
+bibliography: Lorelogram Vignette.bib
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Lorelogram: describing correlation structure in binary data}
@@ -14,6 +14,11 @@ knitr::opts_chunk$set(fig.align = "center", fig.width = 6, fig.height = 4,
   comment = "#>", 
   cache = 1, cache.extra = knitr::rand_seed, autodep = TRUE
 )
+# Load libraries
+library(ggplot2)
+library(tictoc)
+library(tidyverse)
+library(boot)
 ```
 
 
@@ -102,7 +107,7 @@ Methods to account for this residual correlation exists (see @Iannarilli section
 ## 2.3 How the `lorelogram` function works 
 
 The lorelogram requires binary data at each sampling unit (e.g. a camera site) summarized at the scale of interest (e.g. by day, hour, or minute). The `lorelogram` function first remove sampling units with no detection and convert the detection/non-detection data from wide to long format if necessary (Fig. 1, step A). Then, for each sampling unit, it pairs outcomes at different replicates based on all the possible combinations of lags ≤\code(max_lag) unit-lag apart (Fig. 1, step B). The combinations are obtained using the function `combinations` in package __arrangements__ @Lai2018, whereas the pairing is performed using the `nest` and `unnest` functions in __tidyverse__ @Hadley2017. For each discrete interval (i.e. 1 through \code(max_lag)), the function tabulated the number of occurrence of each pairwise detection history ‘11’, ‘10’, ‘01’, or ‘00’ at each sampling units, and then pool data across units if more then one unit has been sampled (Fig. 1, step C). In the empirical lorelogram, these values are used to calculate the average log-odds ratio value at each interval as: $LOR=\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}$ . The 95% confidence interval at each lag is calculated as: $CI^{95\%} = LOR\pm1.96*\sqrt{\frac{1}{n_{11}}+\frac{1}{n_{00}}+\frac{1}{n_{10}}+\frac{1}{n_{11}}}$.
-![Figure 1. Conceptual diagram of the formatting process undergoing in the `lorelogram` function. Example of how camera trap data are converted from detection histories to the counts necessary to calculate the lorelogram values (i.e. pairwise log-odds ratios). Detection histories are first converted from wide to long format (A), then the fucntion compile the outcomes $y_{i}$ and $y_{j}$ as pairwise detections based on all the possible pairwise combinations of time _i_ and _j_ within the maximum time lag ($\Delta t$) considered (B). Finally, for each value of $\Delta t$, we counted the number of 00, 01, 10, 00 detection histories, respectively (C), across all values of _i_ and _j_ that were $\Delta t$ units apart.](C:/Users/Fabiola/Documents/PhD Matherial/LORELOGRAM_TEMPORAL DEPENDENCY/Writing/fig Data formatting_cropped.jpg){width=50%}
+![Figure 1. Conceptual diagram of the formatting process undergoing in the `lorelogram` function. Example of how camera trap data are converted from detection histories to the counts necessary to calculate the lorelogram values (i.e. pairwise log-odds ratios). Detection histories are first converted from wide to long format (A), then the fucntion compile the outcomes $y_{i}$ and $y_{j}$ as pairwise detections based on all the possible pairwise combinations of time _i_ and _j_ within the maximum time lag ($\Delta t$) considered (B). Finally, for each value of $\Delta t$, we counted the number of 00, 01, 10, 00 detection histories, respectively (C), across all values of _i_ and _j_ that were $\Delta t$ units apart.](vignettes/fig Data formatting_cropped.jpg){width=50%}
 
 
 ## 2.4 Identify the minimum interval to approximate independency
@@ -110,15 +115,11 @@ The lorelogram requires binary data at each sampling unit (e.g. a camera site) s
 A visual inspection of the lorelogram plot is often sufficient to identify the minimum interval between replicates required to reach (or approximate) independence. However, the __lorelogram__ package provides the `lor_lag_to_indep` function based on derivative that can support a more rigorous selection of this lag threshold. To illustrate how the function works we first simulate same data containing a short-term dependency structure, then we pass this data in the `lorelogram` function and save the results in an object dataframe named _LORs_est_. Finally we use `lor_lag_to_indep` to indentify the minimum interval to approximate independency. 
 
 ```{r ex10}
-# Load libraries
-library(tidyverse)
-library(boot)
-
 # Simulation data
 set.seed(129)
 M <- 30                            # Number of sites
-J <- 1000                    # Number of occasions
-y <- matrix(NA, nrow=M, ncol=J)     # to store obs values
+J <- 1000                          # Number of occasions
+y <- matrix(NA, nrow=M, ncol=J)    # to store obs values
 time <- matrix(data=seq(1,J,1), nrow=M, ncol=J, byrow=TRUE)
 b0<-rep(0, J) 
 
@@ -155,10 +156,47 @@ The `lor_lag_to_indep` function first
 
 Binning data (i.e. aggregating the data in intervals containing more than one value of lag) can hep reduce the gaps in the lorelogram curves. When there are no detection for a specific lag, the denominator in $LOR=\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}$ becomes zero and the lod-odds ratio value is undefined for that interval. A common strategy to avoid this problem is to apply the alternative formulation $LOR=\log{\frac{(n_{11}+0.5)(n_{00}+0.5)}{(n_{01}+0.5)(n_{01}+0.5)}}$ CITE FLEISS AGRESTI. However, we prefer to not adopt this solution because we believe is important for users to directly visualize the results directly based on the data they have, without correction to not give them the illusion to have a complete dataset.
 
-For a certain set of data, there is usually an optimal binning value that balances the increasing level of bias with the improvement of precision in the estimates. More extend guidance on this topic is provided in CITE. Our main goal here, when binning data, is reducing gaps in the lorelogram when detection are sparse. Using the \code{bin_width} argument in `lorelogram` users can test several binning values and choose the one that they think is more adeguate for their dataset. To illustrate the process we use the gray fox data, this time organized at the minute scale (instead of hour scale) and selecting only sites where XXXX lure was used. Data are available at \url{drum repository link}.
+For a certain set of data, there is usually an optimal binning value that balances the increasing level of bias with the improvement of precision in the estimates. More extend guidance on this topic is provided in CITE. Our main goal here, when binning data, is reducing gaps in the lorelogram when detection are sparse. Using the \code{bin_width} argument in `lorelogram` users can test several binning values and choose the one that they think is more adeguate for their dataset. To illustrate the process we use the gray fox data, this time organized at the minute scale (instead of hour scale) and selecting only sites where salmon oil was used as lure. More details about the data are available at \url{https://drive.google.com/drive/u/0/folders/12cx59tZvPndOWqH7TG6XKGPFd6HyBjMR} through the University of Minnesota Data Respository DRUM.
 
 ```{r ex 12}
-#insert code
+#' Load data
+lorelogram(Gra)
+
+# bin_width = 1 corresponds to no binning
+tic()
+LORs_no_bin <- lorelogram(GrayFox_minute_lureSal[,-89283], max_lag = 60, bin_width = 1, plot_LOR = FALSE)
+toc()
+
+# bin_width = 10
+tic()
+LORs_10_bin <- lorelogram(GrayFox_minute_lureSal[,-89283], max_lag = 60, bin_width = 10, plot_LOR = FALSE)
+toc()
+
+LORs_no_bin$binning <- "bin_width = 1"
+LORs_10_bin$binning <- "bin_width = 10"
+
+LORs <- rbind(LORs_no_bin, LORs_10_bin)
+
+LORs %>% mutate(binning = factor(binning, levels = c("bin_width = 1", "bin_width = 10"))) %>% ggplot(., aes(x = Lag, y = LORs))+
+  geom_line(aes(linetype = binning, color = binning), size = 0.5)+
+  geom_ribbon(aes(ymin=L_95_CI, ymax=U_95_CI, color = binning, fill = binning), alpha=0.3)+
+  geom_hline(yintercept = 0) +
+  labs(y = "Log-odds ratio") +
+  ggplot2::theme_minimal()+
+  ggplot2::theme(legend.justification = c(1, 1), legend.position = c(0.99,0.99),
+                 legend.title = element_text(size=10, face = "bold"),
+                 legend.text = element_text(size=8),
+                 legend.background = element_rect(fill = "white", color = "grey"), 
+                 legend.direction = "vertical",
+                 axis.line.y = ggplot2::element_line(colour = 'black', linetype = 'solid'),
+                 axis.ticks.y = ggplot2::element_line(colour = 'black', linetype = 'solid'),
+                 axis.text = ggplot2::element_text(size=8),
+                 axis.title = ggplot2::element_text(size=10,face="bold"),
+                 panel.grid.minor.y = ggplot2::element_blank(),
+                 panel.grid.major.y = ggplot2::element_blank(),
+                 panel.grid.major.x = ggplot2::element_line(colour = 'grey', linetype = 'solid', size=0.25),
+                 panel.grid.minor.x = ggplot2::element_line(colour = 'grey', linetype = 'dashed', size=0.25))+
+  ggplot2::scale_x_continuous(breaks=seq(0,max(LORs$Lag),10), labels=seq(0,max(LORs$Lag),10))
 ```
 
 ## 2.5 Accounting for site-to-site variability
