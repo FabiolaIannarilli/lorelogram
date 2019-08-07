@@ -160,7 +160,7 @@ For a certain set of data, there is usually an optimal binning value that balanc
 
 ```{r ex 12}
 #' Load data
-lorelogram(Gra)
+lorelogram(GrayFox_minute_lureSal)
 
 # bin_width = 1 corresponds to no binning
 tic()
