@@ -1,0 +1,7 @@
+load pkg	!	::	if	install.packages	library	require
+ex1	data	GrayFox_Hour	lorelogram
+ex2	c	GrayFox_Hour	lor_plot	lorelogram
+ex3	GrayFox_Hour
+ex4	data	GrayFox_Hour_long
+ex5	$	%>%	::	[<-	>	as.data.frame	as.numeric	data	dim	droplevels	head	id	lapply	library	range	str	sum	y
+ex6	$	GrayFox_Hour_long	library	lorelogram	source_url	tic	toc
