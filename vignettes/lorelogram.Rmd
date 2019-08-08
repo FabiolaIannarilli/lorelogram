@@ -2,7 +2,10 @@
 title: "Lorelogram: describing correlation structure in binary data"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 bibliography: Lorelogram Vignette.bib
-output: rmarkdown::html_vignette
+output: rmarkdown::html_vignette:
+  toc: true
+  toc_depth: 2
+  number_sections: true
 vignette: >
   %\VignetteIndexEntry{Lorelogram: describing correlation structure in binary data}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,14 +23,6 @@ library(tictoc)
 library(tidyverse)
 library(boot)
 ```
-
-
-
-# Table of contents
-1. [Introduction](#introduction)
-2. [How to apply the lorelogram](#paragraph1)
-    1. [Data format](#subparagraph1)
-3. [Another paragraph](#paragraph2)
 
 
 
@@ -90,16 +85,76 @@ Sites in which there are no detection (i.e. no 1s) for the whole sampling period
 
 Lorelogram plots provide a graphical description of how the correlation in the data changes with the increase of the interval between sampling occasions. Their interpretation vary based on the resolution of the data (e.g., hour- versus minute-scale), and the context in which it is applied (e.g., spatial versus temporal dependency). Here we provide some general guidance on how to interpret the lorelogram and illustrate this applying the lorelogram to simulated data. In general, log-odds ratio estimates equal to zero suggest no correlation among outcomes x-unit apart. Positive or negative values indicate instead positive or negative correlation, respectively.
 
-We start simulating data with stationary mean (i.e. mean value is constant across the period of study, that is no other correlation structure are preset in the data) that contains a short-term dependency coded as an autocorrelation component of order first order (i.e. AR1). The lorelogram plot is able to describe the structure of the short-term correlation component, with a steep drop in correlation for short lags independence among outcomes at least x-unit apart.
+We start simulating data with stationary mean (i.e. mean value is constant across the period of study, that is, no other correlation structure are preset in the data) that contains a short-term dependency coded as an autocorrelation component of first order (i.e. AR1). The lorelogram plot is able to describe the structure of the short-term correlation component, with a steep drop in correlation for short lags independence among outcomes at least x-unit apart.
 
-```{r ex 13}
-#insert code
+```{r ex 5}
+# Prepare to simulate
+set.seed(129)
+M <- 30                            # Number of sites
+J <- 1000                          # Number of occasions
+y <- matrix(NA, nrow=M, ncol=J)    # to store obs values
+time <- matrix(data=seq(1,J,1), nrow=M, ncol=J, byrow=TRUE) # Create covariate time
+b0<-rep(0, J)                      # Stationary mean 
+
+# Simulate ar1 errors (pick whichever is appropriate)
+rho<-0.75 # autocorrelation parameter on logit scale
+eps<-matrix(NA, nrow=M, ncol=J) # to hold errors
+for(i in 1:M){
+  eps[i,1:J]<- t(arima.sim(n =J, list(ar = rho), innov=rnorm(J, mean = 0, sd=0.5))) #autocorrelation
+}
+
+# Determine ps 
+p <- inv.logit( matrix(b0, nrow=M, ncol=J, byrow=TRUE) + eps)   # Detection probability
+
+# Simulate detection process
+for(j in 1:J){
+  y[,j] <- rbinom(M, 1, p[,j])
+}
+
+# create and add ID column to the data and prepare the data
+y <- as.data.frame(cbind(id=paste("S", seq(1,M,1), sep=""),y))
+colnames(y) <- c("id", paste0("R", seq(1, J, 1), sep=""))
+Stat_data <- y
+
+# Applying lorelogram
+LOR_Stat_data <- lorelogram(Stat_data, max_lag = 30)
+
 ```
 
 In the second example, we again simulate a short-term correlation component, but we apply a not-stationary mean. The lorelogram is still able to describe the short-term correlation in the data, but this time the curve levels off at a log-odds ratio values higher than zero. This suggests the presence in the data of correlation structures other than the one targeted by the lorelogram. For other examples see @Iannarilli (fig. 2 and S1-2 in Appendix).
 
-```{r ex 14}
-#insert code
+```{r ex 6}
+# Prepare to simulate
+set.seed(129)
+M <- 30                            # Number of sites
+J <- 1000                          # Number of occasions
+y <- matrix(NA, nrow=M, ncol=J)    # to store obs values
+time <- matrix(data=seq(1,J,1), nrow=M, ncol=J, byrow=TRUE) # Create covariate time
+b0<-2-0.004*time[1,]               # NON Stationary mean 
+
+# Simulate ar1 errors (pick whichever is appropriate)
+rho<-0.75 # autocorrelation parameter on logit scale
+eps<-matrix(NA, nrow=M, ncol=J) # to hold errors
+for(i in 1:M){
+  eps[i,1:J]<- t(arima.sim(n =J, list(ar = rho), innov=rnorm(J, mean = 0, sd=0.5))) #autocorrelation
+}
+
+# Determine ps 
+p <- inv.logit( matrix(b0, nrow=M, ncol=J, byrow=TRUE) + eps)   # Detection probability
+
+# Simulate detection process
+for(j in 1:J){
+  y[,j] <- rbinom(M, 1, p[,j])
+}
+
+# create and add ID column to the data and prepare the data
+y <- as.data.frame(cbind(id=paste("S", seq(1,M,1), sep=""),y))
+colnames(y) <- c("id", paste0("R", seq(1, J, 1), sep=""))
+NonStat_data <- y
+
+# Applying lorelogram
+LOR_NonStat_data <- lorelogram(NonStat_data, max_lag = 30)
+
 ```
 
 Methods to account for this residual correlation exists (see @Iannarilli section 3 for a list), but are computationally demanding and not yet ease to implement in R. 
@@ -112,44 +167,14 @@ The lorelogram requires binary data at each sampling unit (e.g. a camera site) s
 
 ## 2.4 Identify the minimum interval to approximate independency
 
-A visual inspection of the lorelogram plot is often sufficient to identify the minimum interval between replicates required to reach (or approximate) independence. However, the __lorelogram__ package provides the `lor_lag_to_indep` function based on derivative that can support a more rigorous selection of this lag threshold. To illustrate how the function works we first simulate same data containing a short-term dependency structure, then we pass this data in the `lorelogram` function and save the results in an object dataframe named _LORs_est_. Finally we use `lor_lag_to_indep` to indentify the minimum interval to approximate independency. 
+A visual inspection of the lorelogram plot is often sufficient to identify the minimum interval between replicates required to reach (or approximate) independence. However, the __lorelogram__ package provides the `lor_lag_to_indep` function based on derivative that can support a more rigorous selection of this lag threshold. To illustrate how the function works we use the log-odds ratio estimated by `lorelogram` applied to the non-stationary data with a short-term dependency structure simulated in section [Interpreting the lorelogram]. We identify the minimum interval to approximate independency running the `lor_lag_to_indep` on this LOR_NonStat_data object.
 
-```{r ex10}
-# Simulation data
-set.seed(129)
-M <- 30                            # Number of sites
-J <- 1000                          # Number of occasions
-y <- matrix(NA, nrow=M, ncol=J)    # to store obs values
-time <- matrix(data=seq(1,J,1), nrow=M, ncol=J, byrow=TRUE)
-b0<-rep(0, J) 
-
-# Simulate ar1 errors 
-rho<-0.75 # autocorrelation parameter on logit scale
-eps<-matrix(NA, nrow=M, ncol=J) # to hold errors
-for(i in 1:M){
-  eps[i,1:J]<- t(arima.sim(n =J, list(ar = rho), innov=rnorm(J, mean = 0, sd=0.5))) 
-}
-
-#' Determine p's 
-p <- inv.logit( matrix(b0, nrow=M, ncol=J, byrow=TRUE) +  eps)   # Detection probability
-
-# Simulate detection process
-for(j in 1:J){
-  y[,j] <- rbinom(M, 1, p[,j])
-}
-
-# create and add ID column to the data and prepare the data
-y <- as.data.frame(cbind(id=paste("S", seq(1,M,1), sep=""),y))
-colnames(y) <- c("id", paste0("R", seq(1, J, 1), sep=""))
-
-#' Applying lorelogram
-LOR_Dep_Stat <- lorelogram(y, max_lag = 30)
-
+```{r ex7}
 #' Identify interval to reach independency
-lor_lag_to_indep(LOR_Dep_Stat)
+lor_lag_to_indep(LOR_NonStat_data)
 ```
 
-The `lor_lag_to_indep` function first 
+In a first step, the `lor_lag_to_indep` function fits a smoothing cubic spline to the log-odds ratios values estimated by the `lorelogram` function at the series of spatial or temporal intervals of increasing length. Then, it calculates the first derivative of the spline curve and identifies the position of its maximum, that correspond to the interval that leads to indepedency among outcomes.
 
 
 ## 2.4 Binning data
@@ -158,7 +183,7 @@ Binning data (i.e. aggregating the data in intervals containing more than one va
 
 For a certain set of data, there is usually an optimal binning value that balances the increasing level of bias with the improvement of precision in the estimates. More extend guidance on this topic is provided in CITE. Our main goal here, when binning data, is reducing gaps in the lorelogram when detection are sparse. Using the \code{bin_width} argument in `lorelogram` users can test several binning values and choose the one that they think is more adeguate for their dataset. To illustrate the process we use the gray fox data, this time organized at the minute scale (instead of hour scale) and selecting only sites where salmon oil was used as lure. More details about the data are available at \url{https://drive.google.com/drive/u/0/folders/12cx59tZvPndOWqH7TG6XKGPFd6HyBjMR} through the University of Minnesota Data Respository DRUM.
 
-```{r ex 12}
+```{r ex 8}
 #' Load data
 data(GrayFox_minute_lureSal)
 
@@ -203,11 +228,11 @@ LORs %>% mutate(binning = factor(binning, levels = c("bin_width = 1", "bin_width
 
 A common source of correlation in ecological studies is that due to variability among sites (i.e. sampling units). In section 2.2 we explore the consequences on the lorelogram of having this additional correlation structures in the data. However, interestingly, estimating log-odds ratio values applying a generalized linear mixed model approach that includes sampling units as a random effect helps on controlling for site-to-site variability. We, thus, provide the option to adopt this method setting the argument \code{lor_type} in `lorelogram` equal to "model-based". We illustrate the process using simulated data containing a short term correlation structure (that is targeted by the lorelogram) and a factor determing site-to-site variability. We simulate data with and without stationary mean and apply `lorelogram`. 
 
-```{r ex 15}
+```{r ex 9}
 #insert code
 ```
 
-When estimating the empirical lorelogram, the lorelogram curve levels off at a log-odds ratio value higher than zero, even when data are stationary, due to the site-to-site variability. However, when applying the model-based lorelogram (that includes sites as random effect), the residual correlation due to site-to-site variability is removed.
+When estimating the empirical lorelogram, the lorelogram curve levels off at a log-odds ratio value higher than zero, even when data are stationary, due to the site-to-site variability. However, when applying the model-based lorelogram (that includes sites as random effect), the residual correlation due to site-to-site variability is removed:
 
 # 3. `lorelogram`: computational time
 
@@ -223,7 +248,7 @@ Other functions are avaialable to build lorelograms in R. Specifically, at the t
  
 Here we show how the function `lorelogram` in the __lorelogram__ package can handle larger datasets and build lorelogram in a shorter amount of time compared to the other two functions listed above. We also list some advantages and disadvantage of using one option compare to the others. We start importing the example dataset provided within the __lorelogram__ package and the package necessary to perform the test. We use the gray fox data in the long format because this is same format required by the other two functions. We also remove all the sampling units with no detection (`lorelogram` does this internally). In this way, we can make time comparison among functions more direct.  
  
-```{r ex5}
+```{r ex10}
 # load package and data  
 library(tictoc) # for timing the code
 library(tidyverse)
@@ -244,7 +269,7 @@ We begin the test by timing Nick Strayer's function. We load the function and ap
 * y = binary outcome
 * title = title for the plot produced.
 
-```{r ex6, eval=FALSE, include=FALSE}
+```{r ex11, eval=FALSE, include=FALSE}
 # load nstrayer's function and data  
 library(devtools)
 source_url("https://github.com/nstrayer/nviz/blob/master/R/lorelogram.R?raw=TRUE")  
@@ -262,7 +287,7 @@ Strayer's function is focused on temporal datasets and, contrary to `lorelogram`
 
 The __CompRandFld__ package contains functions to perform parametric statistical inference
 with spatial and spatio-temporal datasets based on random fields. The `EVariogram` function, in particular, computes variograms and lorelograms based on the composite likelihood. This function does not handles missing values in the detection/nondetection column, so we are going to remove them first.
-```{r ex7}
+```{r ex12}
 library(CompRandFld) #EVariogram
 library(tidyverse)
 
@@ -281,7 +306,7 @@ toc()
 
 `EVariogram` requires around 3 minutes to run, about 60 times longer that the `lorelogram` function:
 
-```{r ex8, message = FALSE}
+```{r ex13, message = FALSE}
 # lorelogram::lorelogram function
 tic()
 lor_lor <- lorelogram::lorelogram(GrayFox_Hour_long, max_lag = 30, data_format = "long", plot_LOR = FALSE)
@@ -291,7 +316,7 @@ toc()
 
 Plotting the results of both the functions we can see that the two curves show the same pattern: a slightly decrease in correlation followed by an increase after time lags of 12 hours (\ref{fig:ex9}). The two curves are, however, in different position in respect of the zero line. This is due to the fact that `EVariogram` handles the non-stationary nature of the data, whereas `lorelogram` does not. Nevertheless, `lorelogram` is able to identify the main correlation structure in the data. Thus, `EVariogram` can be preferred when datasets are not extremely large, whereas `lorelogram` presents computational advantages when working with big data. For example, assessing the short-term correlation (i.e. correlation of outcomes few minutes apart) in 6-week of camera trap data organized at the minute scale (i.e. around 65000 replicates for each surveyed site) is too computational demanding to be performed in a regular laptop using `EVariogram`, but can be done using the `lorelogram`, as showed in @Iannarilli (figure 5); it required ~30 minutes on a regular Windows machine (8 GB; Intel® Core™ i7-4500U CPU @ 1.80GHz 2.40GHz) to compile the lorelogram for time lags between 0 and 60 minutes using 62 days of camera trap data collected from 31 camera sites.
 
-```{r ex9, fig.cap="Green: EVariogram; Red: lorelogram::lorelogram"}
+```{r ex14, fig.cap="Green: EVariogram; Red: lorelogram::lorelogram"}
 ggplot()+
   geom_line(data = NULL, aes(x = lor_Evar$centers, y = lor_Evar$variograms), col = "green")+
   geom_line(data = lor_lor, aes(x = Lag, y = LORs), col = "red")+
