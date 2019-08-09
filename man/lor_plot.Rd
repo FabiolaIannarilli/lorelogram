@@ -6,14 +6,15 @@
 \usage{
 lor_plot(data, save_LOR_plot = FALSE, outDir = "",
   colour = "#0C71C9", linetype = "solid", title = "",
-  x_axis_title = "Lag", y_axis_title = "Log-odds ratio", ylim = NULL)
+  x_axis_title = "Lag", y_axis_title = "Log-odds ratio", ylim = NULL,
+  x_break = 10)
 }
 \arguments{
 \item{data}{output of \code{\link{lorelogram}} function.}
 
 \item{save_LOR_plot}{logical. Create a .jpg plot of the results (default: FALSE)?}
 
-\item{outDir}{character. Directory into which .csv and plot file are saved.}
+\item{outDir}{character. Directory into which .jpg plot is saved.}
 
 \item{colour}{character. Color to fill the confidence interval band (defaul: "#0C71C9")}
 
@@ -25,7 +26,9 @@ lor_plot(data, save_LOR_plot = FALSE, outDir = "",
 
 \item{y_axis_title}{character. Title of y-axis of the plot (default: "Log-odds ratio").}
 
-\item{ylim}{numeric. Vector of two values c(y_min, y_max) defining range for the y axis (default: NULL).}
+\item{ylim}{numeric. Vector of two values \code{c(y_min, y_max)} defining range for the y axis (default: NULL).}
+
+\item{x_break}{numeric. Unit-lag distance between primary breaks in the x_axis (default: 10).}
 }
 \value{
 The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.

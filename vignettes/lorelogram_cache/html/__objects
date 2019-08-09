@@ -10,3 +10,10 @@ ex 14
 ex10	b0	eps	i	j	J	LOR_Dep_Stat	M	p	rho	time	y
 ex 12	
 ex 15	
+ex 5	b0	eps	i	j	J	LOR_Stat_data	M	p	rho	Stat_data	time	y
+ex 6	b0	eps	i	j	J	LOR_NonStat_data	M	NonStat_data	p	rho	time	y
+ex7	
+image	
+lorfig	
+ex 8	
+ex 9	b0	eps	i	j	J	LOR_empirical	LOR_mod_noRE	LOR_mod_RE	LORs	M	p	plot_emp	plot_mod	rho	sdtau	Site_var_data	taus	time	y

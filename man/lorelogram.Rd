@@ -43,3 +43,6 @@ lorelogram(GrayFox_Hour, max_lag = 60)
 
 
 }
+\seealso{
+\code{\href[CompRandFld]{EVariogram}},
+}
