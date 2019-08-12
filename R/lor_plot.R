@@ -12,6 +12,7 @@
 #' @param y_axis_title character. Title of y-axis of the plot (default: "Log-odds ratio").
 #' @param ylim numeric. Vector of two values \code{c(y_min, y_max)} defining range for the y axis (default: NULL).
 #' @param x_break numeric. Unit-lag distance between primary breaks in the x_axis (default: 10).
+#' @alpha numeric. Set transparency of the band describing the confidence interval. Should be a value between 0 and 1 (default: 1).
 #' @return The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
 #' @details \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
 #'
@@ -22,7 +23,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9", linetype = "solid", title = "", x_axis_title = "Lag", y_axis_title = "Log-odds ratio", ylim = NULL, x_break = 10) {
+lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9", linetype = "solid", title = "", x_axis_title = "Lag", y_axis_title = "Log-odds ratio", ylim = NULL, x_break = 10, alpha = 1) {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -30,7 +31,7 @@ lor_plot <- function(data, save_LOR_plot = FALSE, outDir = "", colour = "#0C71C9
 
 
   plot_LOR_all <-  ggplot2::ggplot(data, ggplot2::aes(x = Lag)) +
-      ggplot2::geom_ribbon(ggplot2::aes(ymin = L_95_CI, ymax = U_95_CI, fill = "95 % CI"), alpha = 0.65) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = L_95_CI, ymax = U_95_CI, fill = "95 % CI"), alpha = alpha) +
       ggplot2::geom_line(ggplot2::aes(y = LORs, color = "LORs"), size=0.25, linetype=linetype) + #
       ggplot2::geom_hline(ggplot2::aes(yintercept=0), linetype="solid")+
       ggplot2::scale_colour_manual("",values="black") +
