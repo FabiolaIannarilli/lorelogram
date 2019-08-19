@@ -7,7 +7,7 @@
 lor_plot(data, save_LOR_plot = FALSE, outDir = "",
   colour = "#0C71C9", linetype = "solid", title = "",
   x_axis_title = "Lag", y_axis_title = "Log-odds ratio", ylim = NULL,
-  x_break = 10)
+  x_break = 10, alpha = 1)
 }
 \arguments{
 \item{data}{output of \code{\link{lorelogram}} function.}

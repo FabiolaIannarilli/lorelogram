@@ -7,12 +7,15 @@
 #' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.
 #' @param lor_type character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.
 #' @param id_rand_eff logical. Conditional on lor_type = "model-based". Does the model has to include sampling unit ID as random effect?
+#' @param lor_adj logical. Conditional on lor_type = "empirical". If TRUE (defaul = FALSE), log-odds ratios are calculated using the adjusted formula. See details.
 #' @param bin_width numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.
 #' @param plot_LOR logical. Create a plot of the results (default: TRUE)?
 #' @param write_csv logical. Should the output be saved as a .csv (default: FALSE)?
 #' @param outDir character. Directory into which .csv and plot file are saved.
 #' @return A data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} is returned.
 #' @details \code{\link{lorelogram}} can handle NAs in \code{data}. \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. The first column should contain unitID (a unique identifier for each sampling units); each column from the second to the last should contain the binary data and should follow the spatial or temporal order in which the data were collected (e.g., second, third, and fourth columns should contain data from the first, second, third sampling replicates and so on). If unequal intervals are present in the data, fill gaps with columns of all NAs. Spatio- or temporal- difference between two subsequent columns (e.g. second and third) corresponds to 1-unit lag.
+#'
+#' Average log-odds ratio and 95\% confidence interval at each lag \eqn{\Deltat} are calculated as: \deqn{LOR=\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}} and \deqn{CI^{95\%} = LOR\pm1.96*\sqrt{\frac{1}{n_{11}}+\frac{1}{n_{00}}+\frac{1}{n_{10}}+\frac{1}{n_{11}}}}, where \eqn{n_{xy}} are the number of time the species was detected (x=1) or not (x=0), given a detection (y=1) or not detection (y=0) at a previous lag \eqn{\Deltat} unit apart. The LOR equation results in undefinite or negative infinity when when its denominator or numerator is equal to zero; this corresponds to a gap in the lorelogram at that lag. A solution is to add 0.5 to all the counts, replacing \eqn{n_{xy}} with \eqn{n_{xy} + 0.5} in both equations.
 #'
 #' @seealso \code{\link[CompRandFld]{EVariogram}}
 #'
@@ -24,7 +27,7 @@
 #'
 #' @importFrom magrittr %>%
 #' @export
-lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "empirical", id_rand_eff = FALSE, bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
+lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "empirical", id_rand_eff = FALSE, lor_adj = FALSE, bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "") {
 
   wd0 <- getwd()
   on.exit(setwd(wd0))
@@ -193,9 +196,17 @@ if (lor_type == "empirical"){
 
 # #### Calculate log odds ratios (Empirical lorelogram)
 #+ Log_calculation
-ORs <- freq_tot %>% dplyr::group_by(time_diff) %>%
-  dplyr::summarize(or = sum(`11`)*sum(`00`)/(sum(`10`)*sum(`01`)),
+  if(lor_adj == FALSE) {
+    ORs <- freq_tot %>% dplyr::group_by(time_diff) %>%
+    dplyr::summarize(or = sum(`11`)*sum(`00`)/(sum(`10`)*sum(`01`)),
                    se = sqrt(1/sum(`11`)+1/sum(`00`)+1/sum(`10`)+1/sum(`01`)))
+    ORs
+    }else{
+      ORs <- freq_tot %>% dplyr::group_by(time_diff) %>%
+      dplyr::summarize(or = (sum(`11`)+0.5)*(sum(`00`)+0.5)/((sum(`10`)+0.5)*(sum(`01`)+0.5)),
+                     se = sqrt(1/(sum(`11`)+0.5)+1/(sum(`00`)+0.5)+1/(sum(`10`)+0.5)+1/(sum(`01`)+0.5)))
+      ORs
+  }
 ORs_all_minute <- ORs %>% dplyr::mutate(LORs=log(or),
                                         U_95_CI = log(or)+1.96*se,
                                         L_95_CI = log(or)-1.96*se)

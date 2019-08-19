@@ -5,8 +5,8 @@
 \title{Calculate pairwise log-odds ratios at intervals of increasing length}
 \usage{
 lorelogram(data, data_format = "wide", max_lag = 30,
-  lor_type = "empirical", id_rand_eff = FALSE, bin_width = 1,
-  plot_LOR = TRUE, write_csv = FALSE, outDir = "")
+  lor_type = "empirical", id_rand_eff = FALSE, lor_adj = FALSE,
+  bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "")
 }
 \arguments{
 \item{data}{data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.}
@@ -18,6 +18,8 @@ lorelogram(data, data_format = "wide", max_lag = 30,
 \item{lor_type}{character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.}
 
 \item{id_rand_eff}{logical. Conditional on lor_type = "model-based". Does the model has to include sampling unit ID as random effect?}
+
+\item{lor_adj}{logical. Conditional on lor_type = "empirical". If TRUE (defaul = FALSE), log-odds ratios are calculated using the adjusted formula. See details.}
 
 \item{bin_width}{numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.}
 
@@ -35,6 +37,8 @@ This function estimates pairwise log-odds ratios in binary data at intervals of 
 }
 \details{
 \code{\link{lorelogram}} can handle NAs in \code{data}. \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. The first column should contain unitID (a unique identifier for each sampling units); each column from the second to the last should contain the binary data and should follow the spatial or temporal order in which the data were collected (e.g., second, third, and fourth columns should contain data from the first, second, third sampling replicates and so on). If unequal intervals are present in the data, fill gaps with columns of all NAs. Spatio- or temporal- difference between two subsequent columns (e.g. second and third) corresponds to 1-unit lag.
+
+Average log-odds ratio and 95\% confidence interval at each lag \eqn{\Deltat} are calculated as: \deqn{LOR=\\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}} and \deqn{CI^{95\%} = LOR\pm1.96*\sqrt{\frac{1}{n_{11}}+\frac{1}{n_{00}}+\frac{1}{n_{10}}+\frac{1}{n_{11}}}}, where \eqn{n_{xy}} are the number of time the species was detected (x=1) or not (x=0), given a detection (y=1) or not detection (y=0) at a previous lag \eqn{\Delta t} unit apart.
 }
 \examples{
 data(GrayFox_Hour)
@@ -44,5 +48,5 @@ lorelogram(GrayFox_Hour, max_lag = 60)
 
 }
 \seealso{
-\code{\href[CompRandFld]{EVariogram}},
+\code{\link[CompRandFld]{EVariogram}}
 }
