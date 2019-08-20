@@ -15,5 +15,5 @@ ex 6	b0	eps	i	j	J	LOR_NonStat_data	M	NonStat_data	p	rho	time	y
 ex7	
 image	
 lorfig	
-ex 8	LORs	LORs_10_bin	LORs_no_bin
-ex 9	b0	eps	i	j	J	LOR_empirical	LOR_mod_noRE	LOR_mod_RE	LORs	M	p	plot_emp	plot_mod	rho	sdtau	Site_var_data	taus	time	y
+ex 8	
+ex 9	
