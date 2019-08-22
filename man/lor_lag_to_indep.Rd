@@ -10,7 +10,7 @@ lor_lag_to_indep(data, n_knots = 5, plot_results = TRUE, outDir = "",
 \arguments{
 \item{data}{output of \code{\link{lorelogram}} function.}
 
-\item{n_knots}{numeric. Number of knots in the \code{\link[splines]{bs}}.}
+\item{n_knots}{numeric. Number of knots in the smoothing cubic spline (see splines::bs for details).}
 
 \item{plot_results}{logical. Create a .jpg plot of the results (default: TRUE)?}
 

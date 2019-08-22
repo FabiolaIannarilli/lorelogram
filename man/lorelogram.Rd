@@ -17,9 +17,9 @@ lorelogram(data, data_format = "wide", max_lag = 30,
 
 \item{lor_type}{character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.}
 
-\item{id_rand_eff}{logical. Conditional on lor_type = "model-based". Does the model have to include sampling unit ID as random effect (default = FALSE)?}
+\item{id_rand_eff}{logical. Conditional on lor_type = "model-based". Does the model have to include sampling unit ID as random effect (default: FALSE)?}
 
-\item{lor_adj}{logical. Conditional on lor_type = "empirical". If TRUE (default = FALSE), log-odds ratios are calculated using the adjusted formula. See Details section below.}
+\item{lor_adj}{logical. Conditional on lor_type = "empirical". If TRUE (default: FALSE), log-odds ratios are calculated using the adjusted formula. See Details section below.}
 
 \item{bin_width}{numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/lor_plot.R
 \name{lor_plot}
 \alias{lor_plot}
-\title{Plot pairwise log-odds ratios at intervals of increasing length}
+\title{Save and customize lorelogram plot}
 \usage{
 lor_plot(data, save_LOR_plot = FALSE, outDir = "",
   colour = "#0C71C9", linetype = "solid", title = "",
@@ -12,11 +12,11 @@ lor_plot(data, save_LOR_plot = FALSE, outDir = "",
 \arguments{
 \item{data}{output of \code{\link{lorelogram}} function.}
 
-\item{save_LOR_plot}{logical. Create a .jpg plot of the results (default: FALSE)?}
+\item{save_LOR_plot}{logical. Create a .jpg file of the results (default: FALSE)?}
 
-\item{outDir}{character. Directory into which .jpg plot is saved.}
+\item{outDir}{character. Conditional on \code{save_LOR_plot} = TRUE. In which directory should the .jpg file be saved?}
 
-\item{colour}{character. Color to fill the confidence interval band (defaul: "#0C71C9")}
+\item{colour}{character. Color to fill the confidence interval band (default: "#0C71C9")}
 
 \item{linetype}{character. Linetype for the average log-odds ratio values (default: "solid"). It accepts all the linetype available for ggplot2::geom_line.}
 
@@ -36,10 +36,10 @@ lor_plot(data, save_LOR_plot = FALSE, outDir = "",
 The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
 }
 \description{
-The estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against (spatial or temporal) intervals of increasing length. The plot of the estimates versus lags provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates and it allows to identify which spatial or temporal interval is necessary to approximate independence in binary data.
+The estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against (spatial or temporal) intervals of increasing length. The resulting plot provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates and it allows to identify which spatial or temporal interval is necessary to approximate independence in binary data. The function provides arguments for the customization of several aspects of the plot.
 }
 \details{
-\code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
+\code{data} must be a data.frame object containing the numeric output of the \code{\link{lorelogram}} function. Visual aspects of the lorelogram plot such as color and transparency of the confidence interval band, linetype of the curve representing the average log-odds ratios estimates, title and x- and y-axis labels, can be customazed and the resulting plot can be saved in a folder of user choice.
 }
 \examples{
 data(GrayFox_Hour)

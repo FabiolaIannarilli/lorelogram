@@ -1,11 +1,11 @@
-#' Plot pairwise log-odds ratios at intervals of increasing length
+#' Save and customize lorelogram plot
 #'
-#' The estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against (spatial or temporal) intervals of increasing length. The plot of the estimates versus lags provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates and it allows to identify which spatial or temporal interval is necessary to approximate independence in binary data.
+#' The estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against (spatial or temporal) intervals of increasing length. The resulting plot provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates and it allows to identify which spatial or temporal interval is necessary to approximate independence in binary data. The function provides arguments for the customization of several aspects of the plot.
 #'
 #' @param data output of \code{\link{lorelogram}} function.
-#' @param save_LOR_plot logical. Create a .jpg plot of the results (default: FALSE)?
-#' @param outDir character. Directory into which .jpg plot is saved.
-#' @param colour character. Color to fill the confidence interval band (defaul: "#0C71C9")
+#' @param save_LOR_plot logical. Create a .jpg file of the results (default: FALSE)?
+#' @param outDir character. Conditional on \code{save_LOR_plot} = TRUE. In which directory should the .jpg file be saved?
+#' @param colour character. Color to fill the confidence interval band (default: "#0C71C9")
 #' @param linetype character. Linetype for the average log-odds ratio values (default: "solid"). It accepts all the linetype available for ggplot2::geom_line.
 #' @param title character. Title of the plot (default: NULL).
 #' @param x_axis_title character. Title of x-axis of the plot (default: "Lag").
@@ -14,12 +14,18 @@
 #' @param x_break numeric. Unit-lag distance between primary breaks in the x_axis (default: 10).
 #' @param alpha numeric. Set transparency of the band describing the confidence interval. Should be a value between 0 and 1 (default: 1).
 #' @return The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
-#' @details \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
+#' @details \code{data} must be a data.frame object containing the numeric output of the \code{\link{lorelogram}} function. Visual aspects of the lorelogram plot such as color and transparency of the confidence interval band, linetype of the curve representing the average log-odds ratios estimates, title and x- and y-axis labels, can be customazed and the resulting plot can be saved in a folder of user choice.
 #'
 #' @examples
+#' # import data and estimate log-odds ratio
 #' data(GrayFox_Hour)
-#' lor <- lorelogram(GrayFox_Hour, max_lag = 120)
+#' lor <- lorelogram(GrayFox_Hour, max_lag = 72, plot_LOR = FALSE)
+#'
+#' # basic plot
 #' lor_plot(lor)
+#'
+#' # customized plot
+#' lor_plot(lor, colour = "red", alpha = 0.7, title = "My lorelogram", x_break = 24, x_axis_title = "Time Lag (Hour)")
 #'
 #' @importFrom magrittr %>%
 #' @export

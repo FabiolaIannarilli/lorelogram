@@ -4,7 +4,7 @@
 #'
 #'
 #' @param data output of \code{\link{lorelogram}} function.
-#' @param n_knots numeric. Number of knots in the \code{\link[splines]{bs}}.
+#' @param n_knots numeric. Number of knots in the smoothing cubic spline (see splines::bs for details).
 #' @param plot_results logical. Create a .jpg plot of the results (default: TRUE)?
 #' @param outDir character. Directory into which .csv and plot file are saved.
 #' @param plot_title character. Title of the plot (default: NULL).

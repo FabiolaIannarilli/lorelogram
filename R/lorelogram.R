@@ -6,8 +6,8 @@
 #' @param data_format character. Are data organized in "wide" (default) or "long" format? See Details section below.
 #' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling unit that should be considered when calculating log-odds ratios (default: 30).
 #' @param lor_type character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.
-#' @param id_rand_eff logical. Conditional on lor_type = "model-based". Does the model have to include sampling unit ID as random effect (default = FALSE)?
-#' @param lor_adj logical. Conditional on lor_type = "empirical". If TRUE (default = FALSE), log-odds ratios are calculated using the adjusted formula. See Details section below.
+#' @param id_rand_eff logical. Conditional on lor_type = "model-based". Does the model have to include sampling unit ID as random effect (default: FALSE)?
+#' @param lor_adj logical. Conditional on lor_type = "empirical". If TRUE (default: FALSE), log-odds ratios are calculated using the adjusted formula. See Details section below.
 #' @param bin_width numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.
 #' @param plot_LOR logical. Create a plot of the results (default: TRUE)?
 #' @param write_csv logical. Should the output be saved as a .csv (default: FALSE)?
