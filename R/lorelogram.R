@@ -1,29 +1,53 @@
-#' Calculate pairwise log-odds ratios at intervals of increasing length
+#' Describing correlation in binary data
 #'
-#' This function estimates pairwise log-odds ratios in binary data at intervals of increasing length between subsequent sampling replicates. Plotting of the estimates versus lags (see the \code{\link{lor_plot}} function) provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates.
+#' This function creates lorelograms by estimating pairwise log-odds ratios in binary data at intervals between subsequent sampling replicates of increasing length. The lorelogram, the plot the log-odds ratio estimates versus lags, provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between sampling replicates.
 #'
-#' @param data data.frame containing binary data in the wide format, with rows representing sampling units (e.g., camera trap sites or transects) and columns representing repeated samplings (e.g., temporal occasions or spatial replicates). See Details section below.
-#' @param data_format character. Data can be provided in "wide" (default) or "long" format. See details for more information.
-#' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling units (default: 30) that should be considered.
+#' @param data data.frame containing sampling units identifier, binary outcome, and temporal and spatial units of each event. Data can be supplied in wide or long format. See Details section below.
+#' @param data_format character. Are data organized in "wide" (default) or "long" format? See Details section below.
+#' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling unit that should be considered when calculating log-odds ratios (default: 30).
 #' @param lor_type character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.
-#' @param id_rand_eff logical. Conditional on lor_type = "model-based". Does the model has to include sampling unit ID as random effect?
-#' @param lor_adj logical. Conditional on lor_type = "empirical". If TRUE (defaul = FALSE), log-odds ratios are calculated using the adjusted formula. See details.
+#' @param id_rand_eff logical. Conditional on lor_type = "model-based". Does the model have to include sampling unit ID as random effect (default = FALSE)?
+#' @param lor_adj logical. Conditional on lor_type = "empirical". If TRUE (default = FALSE), log-odds ratios are calculated using the adjusted formula. See Details section below.
 #' @param bin_width numeric. Number of lag that should be included in each bin. The default (=1) represents no binning.
 #' @param plot_LOR logical. Create a plot of the results (default: TRUE)?
 #' @param write_csv logical. Should the output be saved as a .csv (default: FALSE)?
-#' @param outDir character. Directory into which .csv and plot file are saved.
-#' @return A data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} is returned.
-#' @details \code{\link{lorelogram}} can handle NAs in \code{data}. \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. The first column should contain unitID (a unique identifier for each sampling units); each column from the second to the last should contain the binary data and should follow the spatial or temporal order in which the data were collected (e.g., second, third, and fourth columns should contain data from the first, second, third sampling replicates and so on). If unequal intervals are present in the data, fill gaps with columns of all NAs. Spatio- or temporal- difference between two subsequent columns (e.g. second and third) corresponds to 1-unit lag.
+#' @param outDir character. Directory into which .csv file is stored.
+#' @return The function returns a data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} and a plot of the estimates versus lags (when \code{plot_LOR} = TRUE).
+#' @details
+#' The lorelogram was defined by Heagerty & Zeger (1998) as a graphical tool to describe correlation in binary data and is based on pairwise log-odds ratios. The \code{\link{lorelogram}} function calculates empirical lorelograms (but see package's vignette for more details on model-based lorelograms).
 #'
-#' Average log-odds ratio and 95\% confidence interval at each lag \eqn{\Deltat} are calculated as: \deqn{LOR=\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}} and \deqn{CI^{95\%} = LOR\pm1.96*\sqrt{\frac{1}{n_{11}}+\frac{1}{n_{00}}+\frac{1}{n_{10}}+\frac{1}{n_{11}}}}, where \eqn{n_{xy}} are the number of time the species was detected (x=1) or not (x=0), given a detection (y=1) or not detection (y=0) at a previous lag \eqn{\Deltat} unit apart. The LOR equation results in undefinite or negative infinity when when its denominator or numerator is equal to zero; this corresponds to a gap in the lorelogram at that lag. A solution is to add 0.5 to all the counts, replacing \eqn{n_{xy}} with \eqn{n_{xy} + 0.5} in both equations.
+#' Average log-odds ratio and 95\% confidence interval at each lag \eqn{\Deltat} are calculated as: \deqn{LOR=\log{\frac{n_{11}n_{00}}{n_{10}n_{01}}}} and \deqn{CI^{95\%} = LOR\pm1.96*\sqrt{\frac{1}{n_{11}}+\frac{1}{n_{00}}+\frac{1}{n_{10}}+\frac{1}{n_{11}}}} where \eqn{n_{xy}} are the number of time the species was detected (x=1) or not (x=0), given a detection (y=1) or not detection (y=0) at a previous lag \eqn{\Deltat} unit apart. The LOR equation results in undefinite or negative infinity when its denominator or numerator is equal to zero; this corresponds to a gap in the lorelogram at that lag. A solution is to add 0.5 to all the counts, replacing \eqn{n_{xy}} with \eqn{n_{xy} + 0.5} in both equations (Agresti 1990). This option is available setting \code{lor_adj} = TRUE.
 #'
-#' @seealso \code{\link[CompRandFld]{EVariogram}}
+#'
+#' \code{\link{lorelogram}} can handle NAs in \code{data}. In the wide format, rows represent sampling units (e.g., camera trap sites or transects) and columns represent repeated samplings (e.g., temporal occasions or spatial replicates). \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. The first column must contain a unique identifier for each sampling units; each column from the second to the last must contain the binary data and should follow the spatial or temporal order in which the data were collected (e.g., second, third, and fourth columns should contain data from the first, second, third sampling replicates and so on). If unequal intervals are present in the data, fill gaps with columns of all NAs. Spatio- or temporal- difference between two subsequent columns (e.g. second and third) corresponds to 1-unit lag. In the long format, \code{data} must be organized in three columns, the first containing the sampling units identifier, the second listing the temporal or spatial unit of the event, and the last column containing the binary outcome (i.e. either 1 or 0).
+#'
+#'
+
+#'
+#'
+#' For more details on binning and model-based lorelogram, see package vignette.
+#'
+#' @references
+#' Agresti, A. 1990. Categorical data analysis. Wiley, New York, New York, USA.
+#'
+#' Heagerty, P. J., and S. L. Zeger. 1998. Lorelogram: A regression approach to exploring dependence in longitudinal categorical responses. Journal of the American Statistical Association 93:150--162.
+#'
+#' @seealso \code{\link{lor_plot}} provides options for saving and customizing the lorelogram plot.
+#' \code{CompRandFld::EVariogram} is another function to calculate lorelograms in R (see package vignette for a comparison).
+#'
 #'
 #' @examples
+#' # calculating lorelogram
 #' data(GrayFox_Hour)
 #' lorelogram(GrayFox_Hour, max_lag = 60)
 #'
+#' # data format
+#' # wide
+#' GrayFox_Hour[24:28, 1:31]
 #'
+#' # long
+#' data("GrayFox_Hour_long")
+#' GrayFox_Hour_long[2501:2520,]
 #'
 #' @importFrom magrittr %>%
 #' @export

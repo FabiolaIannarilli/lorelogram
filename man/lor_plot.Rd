@@ -29,6 +29,8 @@ lor_plot(data, save_LOR_plot = FALSE, outDir = "",
 \item{ylim}{numeric. Vector of two values \code{c(y_min, y_max)} defining range for the y axis (default: NULL).}
 
 \item{x_break}{numeric. Unit-lag distance between primary breaks in the x_axis (default: 10).}
+
+\item{alpha}{numeric. Set transparency of the band describing the confidence interval. Should be a value between 0 and 1 (default: 1).}
 }
 \value{
 The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.

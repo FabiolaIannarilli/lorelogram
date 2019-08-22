@@ -12,7 +12,7 @@
 #' @param y_axis_title character. Title of y-axis of the plot (default: "Log-odds ratio").
 #' @param ylim numeric. Vector of two values \code{c(y_min, y_max)} defining range for the y axis (default: NULL).
 #' @param x_break numeric. Unit-lag distance between primary breaks in the x_axis (default: 10).
-#' @alpha numeric. Set transparency of the band describing the confidence interval. Should be a value between 0 and 1 (default: 1).
+#' @param alpha numeric. Set transparency of the band describing the confidence interval. Should be a value between 0 and 1 (default: 1).
 #' @return The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
 #' @details \code{data} should resemble a binary detection/nondetection history matrix such that provided as an output by the function \code{\link[camtrapR:detectionHistory]{camtrapR::detectionHistory}}. \code{\link{lorelogram}} can handle NAs in \code{data}.
 #'
