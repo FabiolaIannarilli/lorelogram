@@ -42,8 +42,14 @@ The estimates of pairwise log-odds ratios and associated 95\% confidence interva
 \code{data} must be a data.frame object containing the numeric output of the \code{\link{lorelogram}} function. Visual aspects of the lorelogram plot such as color and transparency of the confidence interval band, linetype of the curve representing the average log-odds ratios estimates, title and x- and y-axis labels, can be customazed and the resulting plot can be saved in a folder of user choice.
 }
 \examples{
+# import data and estimate log-odds ratio
 data(GrayFox_Hour)
-lor <- lorelogram(GrayFox_Hour, max_lag = 120)
+lor <- lorelogram(GrayFox_Hour, max_lag = 72, plot_LOR = FALSE)
+
+# basic plot
 lor_plot(lor)
+
+# customized plot
+lor_plot(lor, colour = "red", alpha = 0.7, title = "My lorelogram", x_break = 24, x_axis_title = "Time Lag (Hour)")
 
 }
