@@ -14,7 +14,7 @@
 #' @param x_break numeric. Unit-lag distance between primary breaks in the x_axis (default: 10).
 #' @param alpha numeric. Set transparency of the band describing the confidence interval. Should be a value between 0 and 1 (default: 1).
 #' @return The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
-#' @details \code{data} must be a data.frame object containing the numeric output of the \code{\link{lorelogram}} function. Visual aspects of the lorelogram plot such as color and transparency of the confidence interval band, linetype of the curve representing the average log-odds ratios estimates, title and x- and y-axis labels, can be customazed and the resulting plot can be saved in a folder of user choice.
+#' @details \code{data} must be a data.frame object containing the numeric output of the \code{\link{lorelogram}} function. Visual aspects of the lorelogram plot such as color and transparency of the confidence interval band, linetype of the curve representing the average log-odds ratios estimates, title and x- and y-axis labels, can be customized and the resulting plot can be saved in a folder of user choice.
 #'
 #' @examples
 #' # import data and estimate log-odds ratio
