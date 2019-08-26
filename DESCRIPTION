@@ -10,9 +10,10 @@ Description: Describing correlation structures in binary data through pairwise
     increasing intervals provides a graphical representation of how correlation 
     changes at the increase of the (spatial or temporal)  interval between sampling 
     replicates.
-Depends: R (>= 3.0.0)
+Depends: R (>= 3.5.0)
 Imports: dplyr (>= 0.8.0.1),
          ggplot2 (>= 3.1.1),
+         glmmTMB,
          arrangements (>= 1.1.5),
          magrittr (>= 1.5),
          tidyr (>= 0.8.3),
@@ -20,11 +21,13 @@ Imports: dplyr (>= 0.8.0.1),
          splines,
          gridExtra (>= 2.3)
 Suggests: 
-    splines,
     knitr,
-    rmarkdown
+    rmarkdown,
+    tictoc,
+    scales,
+    boot
 URL: https://github.com/FabiolaIannarilli/lorelogram
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

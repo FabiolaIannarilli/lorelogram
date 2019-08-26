@@ -1,6 +1,6 @@
-load pkg	!	::	if	install.packages	library	require
-ex1	data	GrayFox_Hour	lorelogram
-ex2	c	GrayFox_Hour	lor_plot	lorelogram
+load pkg	require	install.packages	install_github
+ex1	data	lorelogram	GrayFox_Hour
+ex2	LORs	lorelogram	GrayFox_Hour	lor_plot	c
 ex3	GrayFox_Hour
 ex4	data	GrayFox_Hour_long
 ex5	$	%>%	::	[<-	>	as.data.frame	as.numeric	data	dim	droplevels	head	id	lapply	library	range	str	sum	y
@@ -10,10 +10,11 @@ ex 14
 ex10	[<-	arima.sim	as.data.frame	c	cbind	colnames<-	for	inv.logit	library	list	lor_lag_to_indep	lorelogram	matrix	paste	paste0	rbinom	rep	rnorm	seq	set.seed	t
 ex 12	
 ex 15	
-ex 5	[<-	arima.sim	as.data.frame	c	cbind	colnames<-	for	inv.logit	list	lorelogram	matrix	paste	paste0	rbinom	rep	rnorm	seq	set.seed	t
-ex 6	[<-	arima.sim	as.data.frame	c	cbind	colnames<-	for	inv.logit	list	lorelogram	matrix	paste	paste0	rbinom	rnorm	seq	set.seed	t
+ex 5	set.seed	M	J	y	matrix	time	seq	b0	rep	rho	eps	i	t	arima.sim	list	rnorm	p	inv.logit	j	rbinom	as.data.frame	cbind	paste	colnames	c	paste0	Stat_data	LOR_Stat_data	lorelogram
+ex 6	set.seed	M	J	y	matrix	time	seq	b0	rho	eps	i	t	arima.sim	list	rnorm	p	inv.logit	j	rbinom	as.data.frame	cbind	paste	colnames	c	paste0	NonStat_data	LOR_NonStat_data	lorelogram
 ex7	lor_lag_to_indep	LOR_NonStat_data
 image	::
-lorfig	::
-ex 8	$	$<-	%>%	.	::	aes	binning	c	data	element_rect	element_text	factor	geom_hline	geom_line	geom_ribbon	ggplot	GrayFox_minute_lureSal	L_95_CI	labs	Lag	lorelogram	max	mutate	rbind	seq	tic	toc	U_95_CI
-ex 9	$	$<-	::	[<-	aes	arima.sim	as.data.frame	c	cbind	colnames<-	coord_cartesian	element_rect	element_text	for	geom_hline	geom_line	geom_ribbon	ggplot	grid.arrange	inv.logit	L_95_CI	labs	Lag	list	lor_plot	lorelogram	matrix	max	Method	paste	paste0	rbind	rbinom	rep	rnorm	seq	set.seed	t	tic	toc	U_95_CI
+lorfig	include_graphics
+ex 8	data	GrayFox_minute_lureSal	tic	LORs_no_bin	lorelogram	toc	LORs_10_bin	binning	LORs	rbind	%>%	mutate	factor	c	ggplot	.	aes	Lag	geom_line	geom_ribbon	L_95_CI	U_95_CI	geom_hline	labs	theme_minimal	theme	element_text	element_rect	element_line	element_blank	scale_x_continuous	seq	max
+ex 9	set.seed	M	J	y	matrix	time	seq	b0	rep	sdtau	taus	rnorm	rho	eps	i	t	arima.sim	list	p	inv.logit	j	rbinom	as.data.frame	cbind	paste	colnames	c	paste0	Site_var_data	tic	LOR_empirical	lorelogram	toc	plot_emp	lor_plot	LOR_mod_noRE	LOR_mod_RE	Method	LORs	rbind	plot_mod	ggplot	aes	Lag	geom_line	geom_ribbon	L_95_CI	U_95_CI	geom_hline	labs	coord_cartesian	theme_minimal	theme	element_text	element_rect	element_line	element_blank	scale_x_continuous	max	grid.arrange
+unnamed-chunk-2	library	lorelogram

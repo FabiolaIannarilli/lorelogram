@@ -9,7 +9,7 @@ lorelogram(data, data_format = "wide", max_lag = 30,
   bin_width = 1, plot_LOR = TRUE, write_csv = FALSE, outDir = "")
 }
 \arguments{
-\item{data}{data.frame containing sampling units identifier, binary outcome, and temporal and spatial units of each event. Data can be supplied in wide or long format. See Details section below.}
+\item{data}{data.frame containing a sampling unit identifier, binary outcome, and temporal and spatial units associated with each event. Data can be supplied in wide or long format. See Details section below.}
 
 \item{data_format}{character. Are data organized in "wide" (default) or "long" format? See Details section below.}
 
@@ -33,7 +33,7 @@ lorelogram(data, data_format = "wide", max_lag = 30,
 The function returns a data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} and a plot of the estimates versus lags (when \code{plot_LOR} = TRUE).
 }
 \description{
-This function creates lorelograms by estimating pairwise log-odds ratios in binary data at intervals between subsequent sampling replicates of increasing length. The lorelogram, the plot the log-odds ratio estimates versus lags, provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between sampling replicates.
+This function creates lorelograms for binary data by estimating pairwise log-odds ratios for intervals between subsequent sampling replicates of increasing length. The plot of the lorelogram, the plot the log-odds ratio estimates versus lags, provides a graphical description of how correlation between outcomes x-lags apart changes as we increase the distance (in space or time) between sampling replicates.
 }
 \details{
 The lorelogram was defined by Heagerty & Zeger (1998) as a graphical tool to describe correlation in binary data and is based on pairwise log-odds ratios. The \code{\link{lorelogram}} function calculates empirical lorelograms (but see package's vignette for more details on model-based lorelograms).

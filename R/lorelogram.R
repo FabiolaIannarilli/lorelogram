@@ -1,8 +1,8 @@
 #' Describing correlation in binary data
 #'
-#' This function creates lorelograms by estimating pairwise log-odds ratios in binary data at intervals between subsequent sampling replicates of increasing length. The lorelogram, the plot the log-odds ratio estimates versus lags, provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between sampling replicates.
+#' This function creates lorelograms for binary data by estimating pairwise log-odds ratios for intervals between subsequent sampling replicates of increasing length. The plot of the lorelogram, the plot the log-odds ratio estimates versus lags, provides a graphical description of how correlation between outcomes x-lags apart changes as we increase the distance (in space or time) between sampling replicates.
 #'
-#' @param data data.frame containing sampling units identifier, binary outcome, and temporal and spatial units of each event. Data can be supplied in wide or long format. See Details section below.
+#' @param data data.frame containing a sampling unit identifier, binary outcome, and temporal and spatial units associated with each event. Data can be supplied in wide or long format. See Details section below.
 #' @param data_format character. Are data organized in "wide" (default) or "long" format? See Details section below.
 #' @param max_lag numeric. The maximum spatial or temporal lag between two sampling occasions at the same sampling unit that should be considered when calculating log-odds ratios (default: 30).
 #' @param lor_type character. Lorelogram can either be estimate using an "empirical" (default) or "model-based" approach.
