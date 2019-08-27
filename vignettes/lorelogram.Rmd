@@ -44,7 +44,7 @@ devtools::install_github("FabiolaIannarilli/lorelogram",
 library(lorelogram)
 ```
 
-The lorelogram is a tool to identify dependency structure in binary data. In @Iannarilli, we should how it can be used to guide data aggregation efforts to facilitate independence, or alternatively, to inform appropriate structures for modelling correlated data. 
+The lorelogram is a tool to identify dependency structure in binary data. In @Iannarilli, we showed how it can be used to guide data aggregation efforts to facilitate independence, or alternatively, to inform appropriate structures for modelling correlated data. 
 <!---
 explore the effect of covariates on correlation . It can also be applied to explore the dependency at different spatial or temporal scales (e.g., camera trap data analyzed at the hour- or minute-scale) within a certain dataset. 
 
