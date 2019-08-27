@@ -1,6 +1,6 @@
 #' Save and customize lorelogram plot
 #'
-#' The estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against (spatial or temporal) intervals of increasing length. The resulting plot provides a graphical description of how correlation between outcomes x-lag apart changes at the increase of the distance (in space or time) between the sampling replicates and it allows to identify which spatial or temporal interval is necessary to approximate independence in binary data. The function provides arguments for the customization of several aspects of the plot.
+#' The estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against the temporal or spatial lag (x-axis). The plotted lorelogram provides a graphical description of how correlation between outcomes  changes as we increase the distance (in space or time) between sampling occassions. This function provides arguments for the customization of several aspects of the plot.
 #'
 #' @param data output of \code{\link{lorelogram}} function.
 #' @param save_LOR_plot logical. Create a .jpg file of the results (default: FALSE)?
