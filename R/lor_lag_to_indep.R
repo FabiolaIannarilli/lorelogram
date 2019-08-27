@@ -1,6 +1,6 @@
-#' Identify lag to approximate independence in binary data
+#' Identify lag at which serial dependence is no longer present
 #'
-#' This function identifies spatial or temporal intervals required to approximate independence in binary data by determining when the first derivative of the log-odds ratios with respect to \eqn{\Delta}\emph{t} reaches zero. It allows for non-zero asymptotic values due to among-site variation or cyclic patterns.
+#' This function identifies the spatial or temporal lag at which serial dependence is no longer present in binary data by determining when the first derivative of the pairwise log-odds ratios with respect to \eqn{\Delta}\emph{t} reaches zero. It allows for non-zero asymptotic log-odds ratios due to non-stationarity in the mean process or among-site variation.
 #'
 #'
 #' @param data output of \code{\link{lorelogram}} function.
@@ -12,17 +12,11 @@
 #' @return The function returns the minimum interval length necessary to approximate independence in the data.
 #' @details \code{data} should be a data.frame containing the output of the \code{\link{lorelogram}} function.
 #'
-#' First, a smoothing cubic spline is fitted to the log-odds ratios values estimated by the \code{\link{lorelogram}} function at the series of spatial or temporal intervals of increasing length. Then, the first derivative of the spline curve is calculated.
+#' First, a cubic spline is fitted to the pairwise log-odds ratios estimated by the \code{\link{lorelogram}} function at the series of spatial or temporal intervals of increasing length. Then, the first derivative of the spline curve is calculated. The lag at which the first derivative is as close to 0 (in absolute value) is returned. Users should visually inspect the plot of the first derivative function to ensure this lag results in a minimum.
 #'
-#' We recommend a visual inspection of the plot produced. When log-odds ratios present cyclic patterns (e.g., due to daily activity patterns affecting camera trap data) at the spatial or temporal scale used in the analysis, the \code{\link{lor_lag_to_indep}} can not be used to identify the minimum interval length that approximate independence in the data.
 #'
 #' @examples
 #' data(GrayFox_Hour)
-#' # cyclic pattern
-#' lor <- lorelogram(GrayFox_Hour, max_lag = 120)
-#' lor_lag_to_indep(lor)
-#'
-#' # non-cyclic pattern
 #' lor <- lorelogram(GrayFox_Hour, max_lag = 30)
 #' lor_lag_to_indep(lor)
 #'
@@ -60,6 +54,6 @@ b <- ggplot2::ggplot(data = NULL, aes(x = dX, y = dY))+
 c <- gridExtra::grid.arrange(a,b)
 
 # Identify time-to-independence
-which(abs(dY-0)==min(abs(dY-0))) #values closest to the zero
+which(abs(dY-0)==min(abs(dY-0))) #values closest to zero
 
 }
