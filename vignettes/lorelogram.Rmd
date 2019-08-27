@@ -209,12 +209,8 @@ A visual inspection of the lorelogram plot is often sufficient to identify the m
 lor_lag_to_indep(LOR_NonStat_data)
 ```
 
-In a first step, the `lor_lag_to_indep` function fits a smoothing cubic spline to the log-odds ratios estimated by the `lorelogram` function. Then, it calculates the first derivative of the spline curve and identifies the position of its maximum. 
+In a first step, the `lor_lag_to_indep` function fits a smoothing cubic spline to the log-odds ratios estimated by the `lorelogram` function. Then, it calculates the first derivative of the spline curve and identifies the lag at which the derivative is closest to 0 (in absolute value). 
 
-<!----
-Do you try to find the value where the derivative is 0 within some level of tolerence? That is what I had assumed this function did rather than just look for a maximum.
-
---->
 
 
 
