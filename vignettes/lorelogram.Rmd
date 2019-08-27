@@ -20,7 +20,6 @@ knitr::opts_chunk$set(fig.align = "center", fig.width = 7, fig.height = 4,
 # Load libraries
 library(ggplot2)
 library(tictoc)
-library(tidyverse)
 library(boot)
 library(gridExtra)
 ```

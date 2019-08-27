@@ -23,9 +23,11 @@ Imports: dplyr (>= 0.8.0.1),
          gridExtra (>= 2.3)
 Suggests: 
     knitr,
+    devtools,
     rmarkdown,
     tictoc,
-    scales,
+    scales, 
+    tidyverse,
     boot
 URL: https://github.com/FabiolaIannarilli/lorelogram
 License: GPL-3

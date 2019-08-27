@@ -36,21 +36,21 @@ Y <- predict(fit,newdata=X) # calculate predictions for that sequence
 dY <- diff(Y)/diff(X$Lag)  # the derivative of the function
 dX <- rowMeans(embed(X$Lag,2)) # centers the X values for plotting
 
-a <- ggplot2::ggplot(lor, aes(x = Lag, y = LORs))+
+a <- ggplot2::ggplot(lor, ggplot2::aes(x = Lag, y = LORs))+
   ggplot2::geom_point()+
-  ggplot2::geom_line(aes(y = Y, color = "Y"), size = 1)+
-  labs(x = "Lag", y = "Log-odds ratio", title = "Original fit")+
-  scale_color_discrete(name = "", labels = "Cubic spline")+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = '.'))+
-  theme_classic()+
-  theme(legend.position = c(0.8,0.95),
-        legend.background = element_blank(),
-        plot.title=element_text(hjust = 0.5, vjust = 0.5))
-b <- ggplot2::ggplot(data = NULL, aes(x = dX, y = dY))+
+  ggplot2::geom_line(ggplot2::aes(y = Y, color = "Y"), size = 1)+
+  ggplot2::labs(x = "Lag", y = "Log-odds ratio", title = "Original fit")+
+  ggplot2::scale_color_discrete(name = "", labels = "Cubic spline")+
+  ggplot2::scale_y_continuous(labels = scales::number_format(accuracy = 0.1, decimal.mark = '.'))+
+  ggplot2::theme_classic()+
+  ggplot2::theme(legend.position = c(0.8,0.95),
+        legend.background = ggplot2::element_blank(),
+        plot.title=ggplot2::element_text(hjust = 0.5, vjust = 0.5))
+b <- ggplot2::ggplot(data = NULL, ggplot2::aes(x = dX, y = dY))+
   ggplot2::geom_line(size = 1)+
-  labs(title = "Derivative")+
-  theme_classic()+
-  theme(plot.title=element_text(hjust = 0.5, vjust = 0.5))
+  ggplot2::labs(title = "Derivative")+
+  ggplot2::theme_classic()+
+  ggplot2::theme(plot.title=ggplot2::element_text(hjust = 0.5, vjust = 0.5))
 c <- gridExtra::grid.arrange(a,b)
 
 # Identify time-to-independence

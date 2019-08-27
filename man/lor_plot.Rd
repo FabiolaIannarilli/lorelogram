@@ -36,7 +36,7 @@ lor_plot(data, save_LOR_plot = FALSE, outDir = "",
 The function returns a plot of the estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag}.
 }
 \description{
-The estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against the temporal or spatial lag (x-axis). The plotted lorelogram provides a graphical description of how correlation between outcomes  changes as we increase the distance (in space or time) between sampling occassions. This function provides arguments for the customization of several aspects of the plot.
+Estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} calculated by the \code{\link{lorelogram}} function are plotted against the temporal or spatial lag (x-axis). The plotted lorelogram provides a graphical description of how correlation between outcomes  changes as we increase the distance (in space or time) between sampling occassions. This function provides arguments for the customization of several aspects of the plot.
 }
 \details{
 \code{data} must be a data.frame object containing the numeric output of the \code{\link{lorelogram}} function. Visual aspects of the lorelogram plot such as color and transparency of the confidence interval band, linetype of the curve representing the average log-odds ratios estimates, title and x- and y-axis labels, can be customized and the resulting plot can be saved in a folder of user choice.
@@ -50,6 +50,7 @@ lor <- lorelogram(GrayFox_Hour, max_lag = 72, plot_LOR = FALSE)
 lor_plot(lor)
 
 # customized plot
-lor_plot(lor, colour = "red", alpha = 0.7, title = "My lorelogram", x_break = 24, x_axis_title = "Time Lag (Hour)")
+lor_plot(lor, colour = "red", alpha = 0.7, title = "My lorelogram",
+ x_break = 24, x_axis_title = "Time Lag (Hour)")
 
 }

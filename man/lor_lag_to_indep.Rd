@@ -29,7 +29,7 @@ This function identifies the spatial or temporal lag at which serial dependence 
 \details{
 \code{data} should be a data.frame containing the output of the \code{\link{lorelogram}} function.
 
-First, a cubic spline is fitted to the pairwise log-odds ratios estimated by the \code{\link{lorelogram}} function at the series of spatial or temporal intervals of increasing length. Then, the first derivative of the spline curve is calculated. The lag at which the first derivative is as close to 0 (in absolute value) is returned. Users should visually inspect the plot of the first derivative function to ensure this lag results in a minimum.
+First, a cubic spline is fitted to the pairwise log-odds ratios estimated by the \code{\link{lorelogram}} function at the series of sampling occassions separated in time or space. Then, the first derivative of the spline curve is calculated. The lag at which the first derivative is closest to 0 (in absolute value) is returned. Users should visually inspect the plot of the first derivative function to ensure the lorelogram asymptotes and that this lag results in a minimum.
 }
 \examples{
 data(GrayFox_Hour)

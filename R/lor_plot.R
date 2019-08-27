@@ -25,7 +25,8 @@
 #' lor_plot(lor)
 #'
 #' # customized plot
-#' lor_plot(lor, colour = "red", alpha = 0.7, title = "My lorelogram", x_break = 24, x_axis_title = "Time Lag (Hour)")
+#' lor_plot(lor, colour = "red", alpha = 0.7, title = "My lorelogram",
+#'  x_break = 24, x_axis_title = "Time Lag (Hour)")
 #'
 #' @importFrom magrittr %>%
 #' @export
