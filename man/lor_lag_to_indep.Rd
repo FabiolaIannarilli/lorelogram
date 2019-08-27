@@ -2,7 +2,7 @@
 % Please edit documentation in R/lor_lag_to_indep.R
 \name{lor_lag_to_indep}
 \alias{lor_lag_to_indep}
-\title{Identify lag to approximate independence in binary data}
+\title{Identify lag at which serial dependence is no longer present}
 \usage{
 lor_lag_to_indep(data, n_knots = 5, plot_results = TRUE, outDir = "",
   plot_title = "", plot_x_title = "Lag")
@@ -24,22 +24,15 @@ lor_lag_to_indep(data, n_knots = 5, plot_results = TRUE, outDir = "",
 The function returns the minimum interval length necessary to approximate independence in the data.
 }
 \description{
-This function identifies spatial or temporal intervals required to approximate independence in binary data by determining when the first derivative of the log-odds ratios with respect to \eqn{\Delta}\emph{t} reaches zero. It allows for non-zero asymptotic values due to among-site variation or cyclic patterns.
+This function identifies the spatial or temporal lag at which serial dependence is no longer present in binary data by determining when the first derivative of the pairwise log-odds ratios with respect to \eqn{\Delta}\emph{t} reaches zero. It allows for non-zero asymptotic log-odds ratios due to non-stationarity in the mean process or among-site variation.
 }
 \details{
 \code{data} should be a data.frame containing the output of the \code{\link{lorelogram}} function.
 
-First, a smoothing cubic spline is fitted to the log-odds ratios values estimated by the \code{\link{lorelogram}} function at the series of spatial or temporal intervals of increasing length. Then, the first derivative of the spline curve is calculated.
-
-We recommend a visual inspection of the plot produced. When log-odds ratios present cyclic patterns (e.g., due to daily activity patterns affecting camera trap data) at the spatial or temporal scale used in the analysis, the \code{\link{lor_lag_to_indep}} can not be used to identify the minimum interval length that approximate independence in the data.
+First, a cubic spline is fitted to the pairwise log-odds ratios estimated by the \code{\link{lorelogram}} function at the series of spatial or temporal intervals of increasing length. Then, the first derivative of the spline curve is calculated. The lag at which the first derivative is as close to 0 (in absolute value) is returned. Users should visually inspect the plot of the first derivative function to ensure this lag results in a minimum.
 }
 \examples{
 data(GrayFox_Hour)
-# cyclic pattern
-lor <- lorelogram(GrayFox_Hour, max_lag = 120)
-lor_lag_to_indep(lor)
-
-# non-cyclic pattern
 lor <- lorelogram(GrayFox_Hour, max_lag = 30)
 lor_lag_to_indep(lor)
 
