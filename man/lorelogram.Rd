@@ -33,7 +33,7 @@ lorelogram(data, data_format = "wide", max_lag = 30,
 The function returns a data.frame containing estimates of pairwise log-odds ratios and associated 95\% confidence intervals for each lag between 1 and \code{max_lag} and a plot of the estimates versus lags (when \code{plot_LOR} = TRUE).
 }
 \description{
-This function calculates a lorelogram for binary data by estimating pairwise log-odds ratios for sampling occassions separated in time or space. The lorelogram depicts pairwise log-odds ratios (y-axis) versus temporal or spatial lag (x-axis) and provides a graphical description of how correlation between outcomes  changes as we increase the distance (in space or time) between sampling occassions.
+This function calculates a lorelogram for binary data by estimating pairwise log-odds ratios for sampling occasions separated in time or space. The lorelogram depicts pairwise log-odds ratios (y-axis) versus temporal or spatial lag (x-axis) and provides a graphical description of how correlation between outcomes changes as we increase the distance (in space or time) between sampling occasions.
 }
 \details{
 The lorelogram was defined by Heagerty & Zeger (1998) as a graphical tool to describe correlation in binary data and is based on pairwise log-odds ratios. The \code{\link{lorelogram}} function calculates empirical lorelograms (but see package's vignette for more details on model-based lorelograms).

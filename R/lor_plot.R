@@ -5,7 +5,7 @@
 #' @param data output of \code{\link{lorelogram}} function.
 #' @param save_LOR_plot logical. Create a .jpg file of the results (default: FALSE)?
 #' @param outDir character. Conditional on \code{save_LOR_plot} = TRUE. In which directory should the .jpg file be saved?
-#' @param colour character. Color to fill the confidence interval band (default: "#0C71C9")
+#' @param colour character. Color to fill the confidence interval band (default: "#0C71C9").
 #' @param linetype character. Linetype for the average log-odds ratio values (default: "solid"). It accepts all the linetype available for ggplot2::geom_line.
 #' @param title character. Title of the plot (default: NULL).
 #' @param x_axis_title character. Title of x-axis of the plot (default: "Lag").

@@ -10,7 +10,7 @@ Description: Describing correlation structures in binary data through pairwise
     (y-axis) versus temporal or spatial lag (x-axis) and provides a 
     graphical description of how correlation between outcomes changes
     as we increase the distance (in space or time) between sampling
-    occassions.
+    occasions.
 Depends: R (>= 3.5.0)
 Imports: dplyr (>= 0.8.0.1),
          ggplot2 (>= 3.1.1),
