@@ -98,7 +98,7 @@ Sites at which there are no detection events (i.e. no 1's) for the whole samplin
 
 Lorelogram plots provide a graphical description of how the correlation in the data changes with the increase of the interval between sampling occasions. Their interpretation varies depending on the context in which they are applied (e.g., spatial versus temporal dependency). Here we provide some general guidance on how to interpret the lorelogram by applying the function to simulated data. In general, log-odds ratio estimates equal to zero suggest no correlation among outcomes x-units apart. Positive or negative values indicate instead positive or negative correlation, respectively.
 
-We simulate data for 1000 sampling occasions at each of 30 sites, with log-odds of detection equal to 0 for the entire study period. An autocorrelation component of first order (i.e. AR1) determines a short-term dependency in the data, that is, outcomes few lags apart are strongly correlated. We simulate the data and calculate the lorelogram.
+We simulate data for 1000 sampling occasions at each of 30 sites, with constant detection for the entire study period. An autocorrelation component of first order (i.e. AR1) determines a short-term dependency in the data, that is, outcomes few lags apart are strongly correlated. We simulate the data and calculate the lorelogram.
 
 ```{r ex5}
 # Prepare to simulate
