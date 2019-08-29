@@ -1,10 +1,10 @@
 load pkg	
-ex1	
+ex1	GrayFox_Hour
 ex2	LORs
 ex3	
-ex4	
-ex5	GrayFox_Hour_long
-ex6	
+ex4	GrayFox_Hour_long
+ex5	b0	eps	i	j	J	LOR_Stat_data	M	p	rho	Stat_data	time	y
+ex6	b0	eps	i	j	J	LOR_NonStat_data	M	NonStat_data	p	rho	time	y
 ex 13	
 ex 14	
 ex10	b0	eps	i	j	J	LOR_Dep_Stat	M	p	rho	time	y
@@ -15,6 +15,8 @@ ex 6	b0	eps	i	j	J	LOR_NonStat_data	M	NonStat_data	p	rho	time	y
 ex7	
 image	
 lorfig	
-ex 8	LORs	LORs_10_bin	LORs_no_bin
+ex 8	LORs	LORs_10_bin	LORs_no_bin	GrayFox_minute_lureSal
 ex 9	b0	eps	i	j	J	LOR_empirical	LOR_mod_noRE	LOR_mod_RE	LORs	M	p	plot_emp	plot_mod	rho	sdtau	Site_var_data	taus	time	y
 unnamed-chunk-2	
+ex8	LORs	LORs_10_bin	LORs_no_bin	GrayFox_minute_lureSal
+ex9	b0	eps	i	j	J	LOR_empirical	LOR_mod_noRE	LOR_mod_RE	LORs	M	p	plot_emp	plot_mod	rho	sdtau	Site_var_data	taus	time	y
