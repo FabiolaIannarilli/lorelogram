@@ -9,7 +9,7 @@ output:
 vignette: >
   %\VignetteIndexEntry{Lorelogram: describing correlation structure in binary data}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  %\VignetteEncoding{UTF-8}{inputenc}
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(fig.align = "center", fig.width = 7, fig.height = 4, 
