@@ -6,9 +6,6 @@ The package can be downloaded in R (RCoreTeam 2018) via:
     devtools::install_github("FabiolaIannarilli/lorelogram")
     library(lorelogram)
     
-To build package's vignette: 
-    
-    devtools::install(build_vignettes = TRUE)
     
 Alternatively, to install the package and simultaneously build the vignette, use the following lines of code. This will require longer time to run.
 
