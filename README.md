@@ -8,7 +8,7 @@ The package can be downloaded in R (RCoreTeam 2018) via:
  
 The package's vignette is available at: <https://fabiolaiannarilli.github.io/lorelogram/articles/lorelogram.html> 
     
-Alternatively, to install the package and simultaneously build the vignette, use the following lines of code. This will require longer time to run.
+Alternatively, to install the package and simultaneously build the vignette, use the following lines of code. This will require several minutes.
 
     if (!require("devtools")) install.packages("devtools", 
                                            repos = "http://cran.us.r-project.org", 
