@@ -16,7 +16,7 @@ lor_plot(data, save_LOR_plot = FALSE, outDir = "",
 
 \item{outDir}{character. Conditional on \code{save_LOR_plot} = TRUE. In which directory should the .jpg file be saved?}
 
-\item{colour}{character. Color to fill the confidence interval band (default: "#0C71C9")}
+\item{colour}{character. Color to fill the confidence interval band (default: "#0C71C9").}
 
 \item{linetype}{character. Linetype for the average log-odds ratio values (default: "solid"). It accepts all the linetype available for ggplot2::geom_line.}
 
