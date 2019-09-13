@@ -144,7 +144,7 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
   # #### Organize data: create pairwise detection histories
   # Create nested data frame with each row representing the data from a different time point.  This will make it easy to select data from all clusters where observations differ by a specific time lag.
   #+ organize2
-  y.nest<-y3 %>% tidyr::nest(-time)
+  y.nest<-y3 %>% tidyr::nest_legacy(-time)
   #y.nest # nested data frame
   #as.data.frame(y.nest[1,]$data )[1:5,] # first 5 observations from first time point
 
@@ -153,8 +153,8 @@ lorelogram <- function(data, data_format = "wide", max_lag = 30, lor_type = "emp
 
   myfunct <- function(x) {
     # Sample first times and second times according to the first and second column of x_cmb, and include all clusters that have data from those time periods.  Then unnest to get one data set in long format.
-    y.t1<- y.nest[a[[x]][,1],] %>% tidyr::unnest()
-    y.t2<- y.nest[a[[x]][,2],] %>% tidyr::unnest()
+    y.t1<- y.nest[a[[x]][,1],] %>% tidyr::unnest_legacy()
+    y.t2<- y.nest[a[[x]][,2],] %>% tidyr::unnest_legacy()
 
     # Rename variables and cbind together
     names(y.t1)<-c("time1", "id", "y1")
