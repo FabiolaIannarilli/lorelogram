@@ -72,7 +72,7 @@
     <div class="page-header toc-ignore">
       <h1>Lorelogram: describing correlation structure in binary data</h1>
             
-            <h4 class="date">06 September 2019</h4>
+            <h4 class="date">18 October 2019</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/FabiolaIannarilli/lorelogram/blob/master/vignettes/lorelogram.Rmd"><code>vignettes/lorelogram.Rmd</code></a></small>
       <div class="hidden name"><code>lorelogram.Rmd</code></div>
@@ -88,8 +88,7 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(<span class="st">"devtools"</span>)) <span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>, </a>
 <a class="sourceLine" id="cb1-2" title="2">                                           <span class="dt">repos =</span> <span class="st">"http://cran.us.r-project.org"</span>, </a>
 <a class="sourceLine" id="cb1-3" title="3">                                           <span class="dt">dependencies =</span> <span class="st">"Imports"</span>)</a>
-<a class="sourceLine" id="cb1-4" title="4">devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/reexports.html">install_github</a></span>(<span class="st">"FabiolaIannarilli/lorelogram"</span>, </a>
-<a class="sourceLine" id="cb1-5" title="5">                         <span class="dt">auth_token =</span> <span class="st">"69451dbc8b643e18d5e25b488e0a485b59a93512"</span>) </a></code></pre></div>
+<a class="sourceLine" id="cb1-4" title="4">devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/reexports.html">install_github</a></span>(<span class="st">"FabiolaIannarilli/lorelogram"</span>) </a></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(lorelogram)</a></code></pre></div>
 <p>The lorelogram is a tool to identify dependency structure in binary data. In <span class="citation">Iannarilli et al. (2019)</span>, we showed how it can be used to guide data aggregation efforts to facilitate independence, or alternatively, to inform appropriate structures for modelling correlated data. The method was originally developed by <span class="citation">Heagerty and Zeger (1998)</span> to describe dependence structures in longitudinal categorical data using marginal pairwise conditional log-odds ratios. For details on the method and examples of applications in ecological studies see <span class="citation">Iannarilli et al. (2019)</span>. Here we focus on guiding new users on how to apply the lorelogram to their own dataset.</p>
 <p>The main function in the <strong>lorelogram</strong> package is called <code>lorelogram</code>. This function allows users to calculate log-odds ratio at each spatial or temporal lag up to a maximum interval between subsequent observations. It also returns a plot of the log-odds ratio estimates versus lag, the lorelogram plot, that graphically represents how the correlation changes with the increase of the spatial or temporal lag between observations.</p>
@@ -246,7 +245,7 @@
 <div id="how-the-lorelogram-function-works" class="section level2">
 <h2 class="hasAnchor">
 <a href="#how-the-lorelogram-function-works" class="anchor"></a>2.3 How the <code>lorelogram</code> function works</h2>
-<p>The lorelogram requires binary data for 1 or more sampling units (e.g., camera sites). The <code>lorelogram</code> function first removes sampling units that have no 1’s, and, if necessary, converts the binary data from wide to long format (Fig. 1, step A). Then, for each sampling unit, it creates pairs of outcomes <span class="math inline">\(y_{i}\)</span> and <span class="math inline">\(y_{i+\Delta t}\)</span> for all the possible combination of replicates that are between 1 and ≤ <code>max_lag</code> units apart (Fig. 1, step B). The combinations are obtained using the function <code>combinations</code> in package <strong>arrangements</strong> <span class="citation">(Lai 2018)</span>, whereas the pairing is performed using the <code>nest</code> and <code>unnest</code> functions in <strong>tidyverse</strong> <span class="citation">(Hadley 2017)</span>. For each discrete interval (i.e. 1 through <code>max_lag</code>), the function tabulates the number of occurrences of each pairwise detection history ‘11’, ‘10’, ‘01’, or ‘00’ within a sampling unit. These detection histories are then pooled across sampling units (Fig. 1, step C). In the empirical lorelogram, these values are used to calculate the average log-odds ratio value at each interval as: <span class="math display">\[LOR=\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}.\]</span></p>
+<p>The lorelogram requires binary data for 1 or more sampling units (e.g., camera sites). The <code>lorelogram</code> function first removes sampling units that have no 1’s, and, if necessary, converts the binary data from wide to long format (Fig. 1, step A). Then, for each sampling unit, it creates pairs of outcomes <span class="math inline">\(y_{i}\)</span> and <span class="math inline">\(y_{i+\Delta t}\)</span> for all the possible combination of replicates that are between 1 and ≤ <code>max_lag</code> units apart (Fig. 1, step B). The combinations are obtained using the function <code>combinations</code> in package <strong>arrangements</strong> <span class="citation">(Lai 2018)</span>, whereas the pairing is performed using the <code>nest</code> and <code>unnest</code> functions in <strong>tidyverse</strong> <span class="citation">(Wickham 2017)</span>. For each discrete interval (i.e. 1 through <code>max_lag</code>), the function tabulates the number of occurrences of each pairwise detection history ‘11’, ‘10’, ‘01’, or ‘00’ within a sampling unit. These detection histories are then pooled across sampling units (Fig. 1, step C). In the empirical lorelogram, these values are used to calculate the average log-odds ratio value at each interval as: <span class="math display">\[LOR=\log{\frac{n_{11}n_{00}}{n_{01}n_{01}}}.\]</span></p>
 <p>The 95% confidence interval at each lag is calculated as: <span class="math display">\[95\% \mbox{ } CI = LOR\pm1.96*\sqrt{\frac{1}{n_{11}}+\frac{1}{n_{00}}+\frac{1}{n_{10}}+\frac{1}{n_{11}}}.\]</span></p>
 <div class="figure" style="text-align: center">
 <img src="fig_Data_formatting_cropped.jpg" alt=" Figure 1. Conceptual diagram illustrating how the `lorelogram` function works. This example demonstrates how camera trap data are converted from detection histories to the counts used to calculate the lorelogram values (i.e. pairwise log-odds ratios). Detection histories are first converted from wide to long format (A), then the function compiles the outcomes $y_{i}$ and $y_{j}$ as pairwise detections based on all the possible pairwise combinations of time _i_ and _j_ within the maximum time lag ($\Delta t$) considered (B). Finally, for each value of $\Delta t$, the function counts the number of 00, 01, 10, 00 detection histories, pooling pairwise detections across  all sites (C)." width="75%"><p class="caption">
@@ -427,20 +426,20 @@ Figure 1. Conceptual diagram illustrating how the <code>lorelogram</code> functi
 <div id="ref-Agresti1990">
 <p>Agresti, Alan. 1990. <em>Categorical data analysis</em>. New York, New York, USA: Wiley.</p>
 </div>
-<div id="ref-Hadley2017">
-<p>Hadley, Wickham. 2017. “tidyverse: Easily Install and Load the ’Tidyverse’.” <a href="https://cran.r-project.org/package=tidyverse">https://cran.r-project.org/package=tidyverse</a>.</p>
-</div>
 <div id="ref-Heagerty1998">
 <p>Heagerty, Patrick J., and Scott L. Zeger. 1998. “Lorelogram: A regression approach to exploring dependence in longitudinal categorical responses.” <em>Journal of the American Statistical Association</em> 93 (441): 150–62. <a href="https://doi.org/10.2307/2669612">https://doi.org/10.2307/2669612</a>.</p>
 </div>
 <div id="ref-Iannarilli">
-<p>Iannarilli, F, Todd W. Arnold, John Erb, and John R. Fieberg. 2019. “Using lorelograms to measure and model correlation in binary data: Applications to ecological studies.” <em>In Review at Methods in Ecology and Evolution</em>.</p>
+<p>Iannarilli, F, Todd W. Arnold, John Erb, and John R. Fieberg. 2019. “Using lorelograms to measure and model correlation in binary data: Applications to ecological studies.” <em>Methods in Ecology and Evolution</em>.</p>
 </div>
 <div id="ref-Lai2018">
 <p>Lai, Randy. 2018. “arrangements: Fast Generators and Iterators for Permutations, Combinations and Partitions.” <a href="https://cran.r-project.org/package=arrangements">https://cran.r-project.org/package=arrangements</a>.</p>
 </div>
 <div id="ref-RCoreTeam2018">
 <p>R Core Team. 2018. “R: A language and environment for statistical computing.” Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.r-project.org/.">https://www.r-project.org/.</a></p>
+</div>
+<div id="ref-Hadley2017">
+<p>Wickham, Hadley. 2017. “tidyverse: Easily Install and Load the ’Tidyverse’.” <a href="https://cran.r-project.org/package=tidyverse">https://cran.r-project.org/package=tidyverse</a>.</p>
 </div>
 </div>
 </div>
