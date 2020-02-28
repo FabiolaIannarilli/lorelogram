@@ -36,6 +36,7 @@ Y <- predict(fit,newdata=X) # calculate predictions for that sequence
 dY <- diff(Y)/diff(X$Lag)  # the derivative of the function
 dX <- rowMeans(embed(X$Lag,2)) # centers the X values for plotting
 
+if (plot_results == TRUE){
 a <- ggplot2::ggplot(lor, ggplot2::aes(x = Lag, y = LORs))+
   ggplot2::geom_point()+
   ggplot2::geom_line(ggplot2::aes(y = Y, color = "Y"), size = 1)+
@@ -52,7 +53,8 @@ b <- ggplot2::ggplot(data = NULL, ggplot2::aes(x = dX, y = dY))+
   ggplot2::theme_classic()+
   ggplot2::theme(plot.title=ggplot2::element_text(hjust = 0.5, vjust = 0.5))
 c <- gridExtra::grid.arrange(a,b)
-
+print(c)
+}
 # Identify time-to-independence
 which(abs(dY-0)==min(abs(dY-0))) #values closest to zero
 
